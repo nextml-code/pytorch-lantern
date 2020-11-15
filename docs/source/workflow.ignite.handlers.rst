@@ -1,32 +1,32 @@
-workflow.ignite.handlers package
+wildfire.ignite.handlers package
 ================================
 
 
-.. autoclass:: workflow.ignite.handlers.BestModelTrigger
+.. autoclass:: wildfire.ignite.handlers.BestModelTrigger
    :members:
    :undoc-members:
    :member-order: bysource
-.. autoclass:: workflow.ignite.handlers.EarlyStopping
+.. autoclass:: wildfire.ignite.handlers.EarlyStopping
    :members:
    :undoc-members:
    :member-order: bysource
-.. autoclass:: workflow.ignite.handlers.EpochLogger
+.. autoclass:: wildfire.ignite.handlers.EpochLogger
    :members:
    :undoc-members:
    :member-order: bysource
-.. autoclass:: workflow.ignite.handlers.MetricsLogger
+.. autoclass:: wildfire.ignite.handlers.MetricsLogger
    :members:
    :undoc-members:
    :member-order: bysource
-.. autoclass:: workflow.ignite.handlers.ModelCheckpoint
+.. autoclass:: wildfire.ignite.handlers.ModelCheckpoint
    :members:
    :undoc-members:
    :member-order: bysource
-.. autoclass:: workflow.ignite.handlers.ModelScore
+.. autoclass:: wildfire.ignite.handlers.ModelScore
    :members:
    :undoc-members:
    :member-order: bysource
-.. autoclass:: workflow.ignite.handlers.ProgressBar
+.. autoclass:: wildfire.ignite.handlers.ProgressBar
    :members:
    :undoc-members:
    :member-order: bysource

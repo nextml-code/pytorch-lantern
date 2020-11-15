@@ -1,9 +1,9 @@
 import torch
 from functools import wraps
 
-from workflow.functional import structure_map
-from workflow.torch import module_device, module_train
-from workflow.ignite.decorators import (
+from wildfire.functional import structure_map
+from wildfire.torch import module_device, module_train
+from wildfire.torch.decorators import (
     to_device, step
 )
 

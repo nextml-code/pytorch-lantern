@@ -18,7 +18,7 @@ sys.setrecursionlimit(1500)
 
 # -- Project information -----------------------------------------------------
 
-project = 'ml-workflow'
+project = 'pytorch-wildfire'
 copyright = '2020, Aiwizo'
 author = 'Aiwizo'
 
@@ -26,7 +26,7 @@ author = 'Aiwizo'
 # release = '0.1.0'
 from pkg_resources import get_distribution, DistributionNotFound
 try:
-    release = get_distribution('ml-workflow').version
+    release = get_distribution('pytorch-wildfire').version
 except DistributionNotFound:
     pass
 

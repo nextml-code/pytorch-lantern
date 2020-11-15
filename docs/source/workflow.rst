@@ -1,9 +1,9 @@
-workflow package
+wildfire package
 ================
 
 Setup project
 -------------
-Use ``python -m workflow.setup_project`` to set up a new project as shown
+Use ``python -m wildfire.setup_project`` to set up a new project as shown
 below:
 
 .. code-block::
@@ -12,8 +12,8 @@ below:
     cd new-project
     virtualenv venv -p python3.8
     source venv/bin/activate
-    pip install ml-workflow
-    python -m workflow.setup_project
+    pip install pytorch-wildfire
+    python -m wildfire.setup_project
 
     pip install -r requirements.txt
     pip install -r dev_requirements.txt
@@ -29,9 +29,9 @@ Subpackages
 .. toctree::
    :maxdepth: 3
 
-   workflow.functional
-   workflow.ignite
-   workflow.torch
+   wildfire.functional
+   wildfire.ignite
+   wildfire.torch
 
-.. autofunction:: workflow.figure_to_numpy
-.. autofunction:: workflow.numpy_seed
+.. autofunction:: wildfire.figure_to_numpy
+.. autofunction:: wildfire.numpy_seed

@@ -1,7 +1,7 @@
 from functools import partial, wraps
 
-from workflow.functional import starcompose
-from workflow.torch import to_device as torch_to_device
+from wildfire.functional import starcompose
+from wildfire.torch import to_device as torch_to_device
 
 
 def to_device(device):

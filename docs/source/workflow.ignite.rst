@@ -1,9 +1,9 @@
-workflow.ignite package
+wildfire.ignite package
 =======================
 
-.. autofunction:: workflow.ignite.trainer
-.. autofunction:: workflow.ignite.evaluator
-.. autofunction:: workflow.ignite.worker_init
+.. autofunction:: wildfire.ignite.trainer
+.. autofunction:: wildfire.ignite.evaluator
+.. autofunction:: wildfire.ignite.worker_init
 
 
 Subpackages
@@ -12,7 +12,7 @@ Subpackages
 .. toctree::
    :maxdepth: 3
 
-   workflow.ignite.decorators
-   workflow.ignite.handlers
-   workflow.ignite.handlers.learning_rate
-   workflow.ignite.metrics
+   wildfire.ignite.decorators
+   wildfire.ignite.handlers
+   wildfire.ignite.handlers.learning_rate
+   wildfire.ignite.metrics

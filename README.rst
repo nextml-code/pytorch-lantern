@@ -1,11 +1,11 @@
-===========
-ML Workflow
-===========
+================
+Pytorch Wildfire
+================
 
-.. image:: https://badge.fury.io/py/ml-workflow.svg
-       :target: https://badge.fury.io/py/ml-workflow
+.. image:: https://badge.fury.io/py/wildfire.svg
+       :target: https://badge.fury.io/py/wildfire
 
-ML workflow contains our process of bringing a project to fruition as
+Wildfire contains our process of bringing a project to fruition as
 efficiently as possible. This is subject to change as we iterate and improve.
 This package implements tools and missing features to help bridge the gap
 between frameworks and libraries that we utilize.
@@ -13,11 +13,10 @@ between frameworks and libraries that we utilize.
 The main packages and tools that we build around are:
 
 - pytorch
-- ignite
 - pytorch-datastream
 - guild
 
-See the `documentation <https://ml-workflow.readthedocs.io/en/latest/>`_
+See the `documentation <https://pytorch-wildfire.readthedocs.io/en/latest/>`_
 for more information.
 
 Install in existing project
@@ -25,7 +24,7 @@ Install in existing project
 
 .. code-block::
 
-    pip install ml-workflow
+    pip install pytorch-wildfire
 
 Create new project with MNIST template
 ======================================
@@ -36,8 +35,8 @@ Create new project with MNIST template
     cd new-project
     virtualenv venv -p python3.8
     source venv/bin/activate
-    pip install ml-workflow
-    python -m workflow.setup_project
+    pip install pytorch-wildfire
+    python -m wildfire.setup_project
 
     pip install -r requirements.txt
     pip install -r dev_requirements.txt
@@ -63,8 +62,8 @@ Prepare and run tests
 
 .. code-block::
 
-    git clone git@github.com:aiwizo/ml-workflow.git
-    cd ml-workflow
+    git clone git@github.com:aiwizo/pytorch-wildfire.git
+    cd pytorch-wildfire
     virtualenv venv --python python3.8
     source venv/bin/activate
     pip install -r requirements.txt
@@ -92,6 +91,6 @@ made to the package there will directly carry over to your project environment.
     source venv/bin/activate
 
     cd path/to/work/area
-    git clone git@github.com:aiwizo/ml-workflow.git
-    cd ml-workflow
+    git clone git@github.com:aiwizo/pytorch-wildfire.git
+    cd pytorch-wildfire
     pip install -e .

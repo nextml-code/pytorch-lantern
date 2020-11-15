@@ -1,5 +1,5 @@
-workflow.functional package
+wildfire.functional package
 ===========================
 
-.. autofunction:: workflow.functional.star
-.. autofunction:: workflow.functional.starcompose
+.. autofunction:: wildfire.functional.star
+.. autofunction:: wildfire.functional.starcompose

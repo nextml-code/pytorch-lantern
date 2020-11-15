@@ -1,7 +1,7 @@
-Welcome to ml-workflow's documentation!
+Welcome to pytorch-wildfire's documentation!
 =======================================
 
-ML workflow contains our process of bringing a project to fruition as
+Wildfire contains our process of bringing a project to fruition as
 efficiently as possible. This is subject to change as we iterate and improve.
 This package implements tools and missing features to help bridge the gap
 between frameworks and libraries that we utilize.
@@ -9,7 +9,6 @@ between frameworks and libraries that we utilize.
 The main packages and tools that we build around are:
 
 - pytorch
-- ignite
 - pytorch-datastream
 - guild
 
@@ -17,10 +16,10 @@ The main packages and tools that we build around are:
    :maxdepth: 2
    :caption: Contents:
 
-   workflow
-   workflow.functional
-   workflow.torch
-   workflow.ignite
+   wildfire
+   wildfire.functional
+   wildfire.torch
+   wildfire.ignite
 
 Indices and tables
 ==================

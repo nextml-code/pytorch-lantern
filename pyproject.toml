@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "workflow"
+name = "wildfire"
 version = "0.0.0"
 description = "Pytorch project template and related tools"
 authors = ["Aiwizo"]
 license = "Apache 2"
-include = ["workflow/template/*"]
+include = ["wildfire/template/*"]
 
 [tool.poetry.dependencies]
 python = "^3.8"

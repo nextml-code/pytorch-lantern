@@ -1,9 +1,9 @@
 import torch
 from functools import wraps
 
-from workflow.functional import structure_map
-from workflow.torch import module_device, module_eval
-from workflow.ignite.decorators.to_device import to_device
+from wildfire.functional import structure_map
+from wildfire.torch import module_device, module_eval
+from wildfire.torch.decorators.to_device import to_device
 
 
 def cpu_detach(x):

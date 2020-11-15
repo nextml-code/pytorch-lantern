@@ -14,7 +14,7 @@ class ModuleCompose(nn.Module):
     .. code-block:: python
 
         from torch import nn
-        from workflow.torch import ModuleCompose
+        from wildfire.torch import ModuleCompose
 
         ModuleCompose(
             nn.Conv2d(3, 32),
