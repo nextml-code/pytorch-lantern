@@ -6,5 +6,7 @@ from wildfire.torch.module_train import module_train, module_eval
 from wildfire.torch.requires_grad import requires_grad, requires_nograd
 from wildfire.torch.set_learning_rate import set_learning_rate
 from wildfire.torch.set_seeds import set_seeds
-
-# from datastream import Dataset, Datastream
+from wildfire.torch.evaluate import evaluate
+from wildfire.torch.step import step
+from wildfire.torch.train import train
+from wildfire.torch.update_cpu_model import update_cpu_model

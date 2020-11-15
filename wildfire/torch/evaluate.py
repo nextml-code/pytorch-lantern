@@ -3,7 +3,7 @@ from functools import wraps
 
 from wildfire.functional import structure_map
 from wildfire.torch import module_device, module_eval
-from wildfire.torch.decorators.to_device import to_device
+from wildfire.torch.to_device import to_device
 
 
 def cpu_detach(x):

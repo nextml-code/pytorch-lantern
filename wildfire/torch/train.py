@@ -3,7 +3,7 @@ from functools import wraps
 
 from wildfire.functional import structure_map
 from wildfire.torch import module_device, module_train
-from wildfire.torch.decorators import (
+from wildfire.torch import (
     to_device, step
 )
 
