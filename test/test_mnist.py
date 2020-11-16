@@ -1,7 +1,6 @@
 from functools import partial
-import textwrap
+from time import sleep
 from tqdm import tqdm
-import pandas as pd
 import torch
 import torch.utils.tensorboard
 import torch.nn as nn
@@ -59,59 +58,11 @@ def test_mnist():
     early_stopping = wildfire.EarlyStopping()
     # gradient_metrics = metrics.gradient_metrics()
 
-    class Metrics:
-        def __init__(self, name, tensorboard_logger, **metrics):
-            self.name = name
-            self.tensorboard_logger = tensorboard_logger
-            self.metrics = metrics
-
-        def __getitem__(self, names):
-            return Metrics(
-                name=self.name,
-                tensorboard_logger=self.tensorboard_logger,
-                **{name: self.metrics[name] for name in names},
-            )
-
-        def update_(self, *args, **kwargs):
-            self.metrics = {
-                name: metric.reduce(*args, **kwargs)
-                for name, metric in self.metrics.items()
-            }
-            return self
-
-        def compute(self):
-            return {
-                name: metric.compute()
-                for name, metric in self.metrics.items()
-            }
-
-        def log_(self):
-            # TODO
-            return self
-
-        def table(self):
-            return '\n'.join([
-                f'{self.name}:',
-                textwrap.indent(
-                    (
-                        pd.Series(self.compute())
-                        .to_string(name=True, dtype=False, index=True)
-                    ),
-                    prefix='  ',
-                ),
-            ])
-
-        def print(self):
-            print(self.table())
-            return self
-
-
-    gradient_metrics = Metrics(
+    gradient_metrics = wildfire.Metrics(
         name='gradient',
         loss=wildfire.MapMetric(lambda examples, predictions, loss: loss),
         tensorboard_logger=tensorboard_logger,
     )
-    from time import sleep
 
     for epoch in wildfire.Epochs(2):
 
@@ -137,7 +88,7 @@ def test_mnist():
 
         with wildfire.module_eval(model), torch.no_grad():
             for name, data_loader in evaluate_data_loaders.items():
-                evaluate_metrics = Metrics(
+                evaluate_metrics = wildfire.Metrics(
                     name=name,
                     loss=wildfire.MapMetric(lambda examples, predictions, loss: loss),
                     tensorboard_logger=tensorboard_logger,

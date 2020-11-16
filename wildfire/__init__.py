@@ -7,6 +7,7 @@ from wildfire.functional_base import FunctionalBase
 from wildfire.tensor import Tensor
 from wildfire.epochs import Epochs
 from wildfire.metric import ReduceMetric, MapMetric
+from wildfire.metrics import Metrics
 from wildfire.module_device import module_device
 from wildfire.module_compose import ModuleCompose
 from wildfire.to_device import to_device
