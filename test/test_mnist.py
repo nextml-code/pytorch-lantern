@@ -1,5 +1,7 @@
 from functools import partial
+import textwrap
 from tqdm import tqdm
+import pandas as pd
 import torch
 import torch.utils.tensorboard
 import torch.nn as nn
@@ -57,12 +59,64 @@ def test_mnist():
     early_stopping = wildfire.EarlyStopping()
     # gradient_metrics = metrics.gradient_metrics()
 
-    for epoch in tqdm(range(2)):
+    class Metrics:
+        def __init__(self, name, tensorboard_logger, **metrics):
+            self.name = name
+            self.tensorboard_logger = tensorboard_logger
+            self.metrics = metrics
+
+        def __getitem__(self, names):
+            return Metrics(
+                name=self.name,
+                tensorboard_logger=self.tensorboard_logger,
+                **{name: self.metrics[name] for name in names},
+            )
+
+        def update_(self, *args, **kwargs):
+            self.metrics = {
+                name: metric.reduce(*args, **kwargs)
+                for name, metric in self.metrics.items()
+            }
+            return self
+
+        def compute(self):
+            return {
+                name: metric.compute()
+                for name, metric in self.metrics.items()
+            }
+
+        def log_(self, tensorboard_logger):
+            return self
+
+        def table(self):
+            return '\n'.join([
+                f'{self.name}:',
+                textwrap.indent(
+                    (
+                        pd.Series(self.compute())
+                        .to_string(name=True, dtype=False, index=True)
+                    ),
+                    prefix='  ',
+                ),
+            ])
+
+        def print(self):
+            print(self.table())
+            return self
+
+
+    gradient_metrics = Metrics(
+        name='gradient',
+        loss=wildfire.MapMetric(lambda examples, predictions, loss: loss),
+        tensorboard_logger=tensorboard_logger,
+    )
+    from time import sleep
+
+    for epoch in range(2):
 
         with wildfire.module_train(model):
             for examples, targets in wildfire.ProgressBar(
-                gradient_data_loader
-                # gradient_data_loader, metrics=gradient_metrics[['loss']]
+                gradient_data_loader, metrics=gradient_metrics[['loss']]
             ):
                 predictions = model(examples)
                 loss = F.nll_loss(predictions, targets)
@@ -70,20 +124,24 @@ def test_mnist():
                 optimizer.step()
                 optimizer.zero_grad()
 
-                # gradient_metrics = gradient_metrics.update(
-                #     examples, predictions, loss
-                # )
-                # gradient_metrics.log_()
+                (
+                    gradient_metrics
+                    .update_(examples, predictions.detach(), loss.detach())
+                    .log_(tensorboard_logger)
+                )
+                sleep(1)
 
+        gradient_metrics.print()
                 # optional: schedule learning rate
 
         with wildfire.module_eval(model), torch.no_grad():
             for name, data_loader in evaluate_data_loaders.items():
                 # evaluate_metrics = metrics.evaluate_metrics()
 
-                for examples, targets in tqdm(data_loader):
+                for examples, targets in tqdm(data_loader, desc=name, leave=False):
                     predictions = model(examples)
                     loss = F.nll_loss(predictions, targets)
+                    sleep(0.5)
 
                 #     evaluate_metrics = evaluate_metrics.update(
                 #         examples, predictions, loss
@@ -95,3 +153,5 @@ def test_mnist():
         #     torch.save(train_state, 'model_checkpoint.pt')
         # elif early_stopping.scores_since_improvement > patience:
         #     break
+
+test_mnist()
