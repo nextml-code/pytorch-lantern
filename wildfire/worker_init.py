@@ -1,4 +1,4 @@
-from wildfire.torch import set_seeds
+from wildfire import set_seeds
 
 
 def worker_init(seed, trainer, worker_id):
