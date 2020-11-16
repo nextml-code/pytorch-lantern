@@ -2,18 +2,30 @@ import textwrap
 import pandas as pd
 
 
+class MetricsView:
+    def __init__(self, metrics_container, names):
+        self.metrics_container = metrics_container
+        self.names = names
+
+    @property
+    def name(self):
+        return self.metrics_container.name
+
+    def compute(self):
+        return {
+            name: self.metrics_container.metrics[name].compute()
+            for name in self.names
+        }
+
+
 class Metrics:
-    def __init__(self, name, tensorboard_logger, **metrics):
+    def __init__(self, name, tensorboard_logger, metrics):
         self.name = name
         self.tensorboard_logger = tensorboard_logger
         self.metrics = metrics
 
     def __getitem__(self, names):
-        return Metrics(
-            name=self.name,
-            tensorboard_logger=self.tensorboard_logger,
-            **{name: self.metrics[name] for name in names},
-        )
+        return MetricsView(self, names)
 
     def update_(self, *args, **kwargs):
         self.metrics = {
