@@ -34,6 +34,11 @@ jobs:
         source $HOME/.poetry/env
         poetry install
 
+    - name: Run tests
+      run: |
+        source $HOME/.poetry/env
+        poetry run pytest
+
     - name: Build wheels
       run: |
         source $HOME/.poetry/env
