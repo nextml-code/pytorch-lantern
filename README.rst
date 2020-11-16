@@ -22,13 +22,23 @@ for more information.
 Create new project with template
 ================================
 
+Install `cookiecutter <https://github.com/cookiecutter/cookiecutter>`_
+and `poetry <https://github.com/python-poetry/poetry>`_:
+
+.. code-block::
+
+    pip install cookiecutter
+    curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
+
+Setup project:
+
 .. code-block::
 
     cookiecutter https://github.com/aiwizo/pytorch-wildfire-template.git
     cd <new-project>
     poetry install
 
-You can train a model and inspect the training with:
+You can now train the placeholder model and inspect the results:
 
 .. code-block::
 
@@ -39,6 +49,9 @@ You can train a model and inspect the training with:
 Use wildfire without templates
 ==============================
 
+Install wildfire from pypi using pip or poetry:
+
 .. code-block::
 
-    pip install pytorch-wildfire
+    poetry add pytorch-wildfire
+    # pip install pytorch-wildfire
