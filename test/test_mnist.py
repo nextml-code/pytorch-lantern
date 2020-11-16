@@ -85,7 +85,8 @@ def test_mnist():
                 for name, metric in self.metrics.items()
             }
 
-        def log_(self, tensorboard_logger):
+        def log_(self):
+            # TODO
             return self
 
         def table(self):
@@ -112,7 +113,7 @@ def test_mnist():
     )
     from time import sleep
 
-    for epoch in range(2):
+    for epoch in wildfire.Epochs(2):
 
         with wildfire.module_train(model):
             for examples, targets in wildfire.ProgressBar(
@@ -127,26 +128,30 @@ def test_mnist():
                 (
                     gradient_metrics
                     .update_(examples, predictions.detach(), loss.detach())
-                    .log_(tensorboard_logger)
+                    .log_()
                 )
                 sleep(1)
 
         gradient_metrics.print()
-                # optional: schedule learning rate
+        
 
         with wildfire.module_eval(model), torch.no_grad():
             for name, data_loader in evaluate_data_loaders.items():
-                # evaluate_metrics = metrics.evaluate_metrics()
+                evaluate_metrics = Metrics(
+                    name=name,
+                    loss=wildfire.MapMetric(lambda examples, predictions, loss: loss),
+                    tensorboard_logger=tensorboard_logger,
+                )
 
                 for examples, targets in tqdm(data_loader, desc=name, leave=False):
                     predictions = model(examples)
                     loss = F.nll_loss(predictions, targets)
                     sleep(0.5)
 
-                #     evaluate_metrics = evaluate_metrics.update(
-                #         examples, predictions, loss
-                #     )
-                # evaluate_metrics.log_()
+                    evaluate_metrics.update_(
+                        examples, predictions, loss
+                    )
+                evaluate_metrics.log_().print()
 
         # early_stopping = early_stopping.score(tensorboard_logger)
         # if early_stopping.scores_since_improvement == 0:
@@ -154,4 +159,6 @@ def test_mnist():
         # elif early_stopping.scores_since_improvement > patience:
         #     break
 
-test_mnist()
+
+if __name__ == '__main__':
+    test_mnist()

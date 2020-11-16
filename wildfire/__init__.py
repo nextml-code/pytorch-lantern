@@ -5,6 +5,7 @@ from wildfire.numpy.numpy_seed import numpy_seed
 
 from wildfire.functional_base import FunctionalBase
 from wildfire.tensor import Tensor
+from wildfire.epochs import Epochs
 from wildfire.metric import ReduceMetric, MapMetric
 from wildfire.module_device import module_device
 from wildfire.module_compose import ModuleCompose
