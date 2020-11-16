@@ -9,7 +9,7 @@ from torchvision import datasets, transforms
 import datastream
 
 import wildfire
-from wildfire.torch import ModuleCompose
+from wildfire import ModuleCompose
 
 
 def test_mnist():
@@ -48,6 +48,10 @@ def test_mnist():
         .take(16 * 4)
         .data_loader(batch_size=16)
     )
+    evaluate_data_loaders = dict(
+        evaluate_gradient=gradient_data_loader,
+        evaluate_early_stopping=early_stopping_data_loader,
+    )
 
     tensorboard_logger = torch.utils.tensorboard.SummaryWriter()
     early_stopping = wildfire.EarlyStopping()
@@ -55,13 +59,13 @@ def test_mnist():
 
     for epoch in tqdm(range(2)):
 
-        with wildfire.torch.module_train(model):
-            for examples, target in wildfire.ProgressBar(
+        with wildfire.module_train(model):
+            for examples, targets in wildfire.ProgressBar(
                 gradient_data_loader
                 # gradient_data_loader, metrics=gradient_metrics[['loss']]
             ):
                 predictions = model(examples)
-                loss = F.nll_loss(predictions, target)
+                loss = F.nll_loss(predictions, targets)
                 loss.backward()
                 optimizer.step()
                 optimizer.zero_grad()
@@ -73,20 +77,18 @@ def test_mnist():
 
                 # optional: schedule learning rate
 
-        # with wildfire.torch.module_eval(model), torch.no_grad:
-        #     for name, data_loader in evaluate_data_loaders:
-        #         # evaluate_metrics = metrics.evaluate_metrics()
+        with wildfire.module_eval(model), torch.no_grad():
+            for name, data_loader in evaluate_data_loaders.items():
+                # evaluate_metrics = metrics.evaluate_metrics()
 
-        #         for examples in tqdm(data_loader):
-        #             predictions = model.predictions(
-        #                 architecture.FeatureBatch.from_examples(examples)
-        #             )
-        #             loss = predictions.loss(examples)
+                for examples, targets in tqdm(data_loader):
+                    predictions = model(examples)
+                    loss = F.nll_loss(predictions, targets)
 
-        #         #     evaluate_metrics = evaluate_metrics.update(
-        #         #         examples, predictions, loss
-        #         #     )
-        #         # evaluate_metrics.log_()
+                #     evaluate_metrics = evaluate_metrics.update(
+                #         examples, predictions, loss
+                #     )
+                # evaluate_metrics.log_()
 
         # early_stopping = early_stopping.score(tensorboard_logger)
         # if early_stopping.scores_since_improvement == 0:
