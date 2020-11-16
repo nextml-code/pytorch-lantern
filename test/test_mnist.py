@@ -33,7 +33,7 @@ def test_mnist():
     ])
 
     gradient_dataset = datastream.Dataset.from_subscriptable(
-        datasets.MNIST('data', train=True, download=True, transform=transform)
+        datasets.MNIST('data', train=True, transform=transform, download=True)
     )
     early_stopping_dataset = datastream.Dataset.from_subscriptable(
         datasets.MNIST('data', train=False, transform=transform)
@@ -60,8 +60,10 @@ def test_mnist():
 
     gradient_metrics = wildfire.Metrics(
         name='gradient',
-        loss=wildfire.MapMetric(lambda examples, predictions, loss: loss),
         tensorboard_logger=tensorboard_logger,
+        metrics=dict(
+            loss=wildfire.MapMetric(lambda examples, predictions, loss: loss),
+        ),
     )
 
     for epoch in wildfire.Epochs(2):
@@ -82,16 +84,18 @@ def test_mnist():
                     .log_()
                 )
                 sleep(1)
-
         gradient_metrics.print()
-        
 
         with wildfire.module_eval(model), torch.no_grad():
             for name, data_loader in evaluate_data_loaders.items():
                 evaluate_metrics = wildfire.Metrics(
                     name=name,
-                    loss=wildfire.MapMetric(lambda examples, predictions, loss: loss),
                     tensorboard_logger=tensorboard_logger,
+                    metrics=dict(
+                        loss=wildfire.MapMetric(
+                            lambda examples, predictions, loss: loss
+                        ),
+                    ),
                 )
 
                 for examples, targets in tqdm(data_loader, desc=name, leave=False):
