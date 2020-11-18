@@ -24,8 +24,11 @@ class Metrics:
         self.tensorboard_logger = tensorboard_logger
         self.metrics = metrics
 
-    def __getitem__(self, names):
-        return MetricsView(self, names)
+    def __getitem__(self, name_or_names):
+        if type(name_or_names) == str:
+            return self.metrics[name_or_names]
+        else:
+            return MetricsView(self, name_or_names)
 
     def update_(self, *args, **kwargs):
         self.metrics = {

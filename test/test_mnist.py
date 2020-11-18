@@ -56,8 +56,6 @@ def test_mnist():
 
     tensorboard_logger = torch.utils.tensorboard.SummaryWriter()
     early_stopping = wildfire.EarlyStopping()
-    # gradient_metrics = metrics.gradient_metrics()
-
     gradient_metrics = wildfire.Metrics(
         name='gradient',
         tensorboard_logger=tensorboard_logger,
@@ -86,33 +84,40 @@ def test_mnist():
                 sleep(1)
         gradient_metrics.print()
 
+        evaluate_metrics = {
+            name: wildfire.Metrics(
+                name=name,
+                tensorboard_logger=tensorboard_logger,
+                metrics=dict(
+                    loss=wildfire.MapMetric(
+                        lambda examples, predictions, loss: loss
+                    ),
+                ),
+            )
+            for name in evaluate_data_loaders.keys()
+        }
+
         with wildfire.module_eval(model), torch.no_grad():
             for name, data_loader in evaluate_data_loaders.items():
-                evaluate_metrics = wildfire.Metrics(
-                    name=name,
-                    tensorboard_logger=tensorboard_logger,
-                    metrics=dict(
-                        loss=wildfire.MapMetric(
-                            lambda examples, predictions, loss: loss
-                        ),
-                    ),
-                )
-
                 for examples, targets in tqdm(data_loader, desc=name, leave=False):
                     predictions = model(examples)
                     loss = F.nll_loss(predictions, targets)
                     sleep(0.5)
-
-                    evaluate_metrics.update_(
+                    evaluate_metrics[name].update_(
                         examples, predictions, loss
                     )
-                evaluate_metrics.log_().print()
+                evaluate_metrics[name].log_().print()
 
-        # early_stopping = early_stopping.score(tensorboard_logger)
-        # if early_stopping.scores_since_improvement == 0:
-        #     torch.save(train_state, 'model_checkpoint.pt')
-        # elif early_stopping.scores_since_improvement > patience:
-        #     break
+        # log early stopping to tensorboard?
+        early_stopping = early_stopping.score(
+            evaluate_metrics['evaluate_early_stopping']['loss'].compute()
+        )
+        if early_stopping.scores_since_improvement == 0:
+            torch.save(model.state_dict(), 'model.pt')
+            torch.save(optimizer.state_dict(), 'optimizer.pt')
+        elif early_stopping.scores_since_improvement > 5:
+            break
+        early_stopping.print()
 
 
 if __name__ == '__main__':
