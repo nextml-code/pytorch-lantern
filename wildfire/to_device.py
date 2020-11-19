@@ -4,7 +4,7 @@ from functools import wraps
 
 def to_device(x, device):
     if callable(x):
-        return to_device_decorator(x)
+        return to_device_decorator(device)(x)
     elif type(x) == tuple:
         return tuple(to_device(value, device) for value in x)
     elif type(x) == list:
