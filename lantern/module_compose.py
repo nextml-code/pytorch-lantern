@@ -14,7 +14,7 @@ class ModuleCompose(nn.Module):
     .. code-block:: python
 
         from torch import nn
-        from wildfire import ModuleCompose
+        from lantern import ModuleCompose
 
         ModuleCompose(
             nn.Conv2d(3, 32),
@@ -23,7 +23,6 @@ class ModuleCompose(nn.Module):
             lambda x: (x, x * 2),
             lambda x, x2: x + x2,
         )
-
     '''
     def __init__(self, *modules_and_functions):
         super().__init__()

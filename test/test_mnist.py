@@ -9,8 +9,8 @@ import torch.optim as optim
 from torchvision import datasets, transforms
 import datastream
 
-import wildfire
-from wildfire import ModuleCompose
+import lantern
+from lantern import ModuleCompose
 
 
 def test_mnist():
@@ -55,19 +55,19 @@ def test_mnist():
     )
 
     tensorboard_logger = torch.utils.tensorboard.SummaryWriter()
-    early_stopping = wildfire.EarlyStopping()
-    gradient_metrics = wildfire.Metrics(
+    early_stopping = lantern.EarlyStopping()
+    gradient_metrics = lantern.Metrics(
         name='gradient',
         tensorboard_logger=tensorboard_logger,
         metrics=dict(
-            loss=wildfire.MapMetric(lambda examples, predictions, loss: loss),
+            loss=lantern.MapMetric(lambda examples, predictions, loss: loss),
         ),
     )
 
-    for epoch in wildfire.Epochs(2):
+    for epoch in lantern.Epochs(2):
 
-        with wildfire.module_train(model):
-            for examples, targets in wildfire.ProgressBar(
+        with lantern.module_train(model):
+            for examples, targets in lantern.ProgressBar(
                 gradient_data_loader, metrics=gradient_metrics[['loss']]
             ):
                 predictions = model(examples)
@@ -81,15 +81,15 @@ def test_mnist():
                     .update_(examples, predictions.detach(), loss.detach())
                     .log_()
                 )
-                sleep(1)
+                sleep(0.5)
         gradient_metrics.print()
 
         evaluate_metrics = {
-            name: wildfire.Metrics(
+            name: lantern.Metrics(
                 name=name,
                 tensorboard_logger=tensorboard_logger,
                 metrics=dict(
-                    loss=wildfire.MapMetric(
+                    loss=lantern.MapMetric(
                         lambda examples, predictions, loss: loss
                     ),
                 ),
@@ -97,20 +97,20 @@ def test_mnist():
             for name in evaluate_data_loaders.keys()
         }
 
-        with wildfire.module_eval(model), torch.no_grad():
+        with lantern.module_eval(model), torch.no_grad():
             for name, data_loader in evaluate_data_loaders.items():
-                for examples, targets in tqdm(data_loader, desc=name, leave=False):
+                for examples, targets in tqdm(
+                    data_loader, desc=name, leave=False
+                ):
                     predictions = model(examples)
                     loss = F.nll_loss(predictions, targets)
-                    sleep(0.5)
                     evaluate_metrics[name].update_(
                         examples, predictions, loss
                     )
                 evaluate_metrics[name].log_().print()
 
-        # log early stopping to tensorboard?
         early_stopping = early_stopping.score(
-            evaluate_metrics['evaluate_early_stopping']['loss'].compute()
+            -evaluate_metrics['evaluate_early_stopping']['loss'].compute()
         )
         if early_stopping.scores_since_improvement == 0:
             torch.save(model.state_dict(), 'model.pt')

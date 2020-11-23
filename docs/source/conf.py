@@ -18,7 +18,7 @@ sys.setrecursionlimit(1500)
 
 # -- Project information -----------------------------------------------------
 
-project = 'pytorch-wildfire'
+project = 'pytorch-lantern'
 copyright = '2020, Aiwizo'
 author = 'Aiwizo'
 
@@ -26,7 +26,7 @@ author = 'Aiwizo'
 # release = '0.1.0'
 from pkg_resources import get_distribution, DistributionNotFound
 try:
-    release = get_distribution('pytorch-wildfire').version
+    release = get_distribution('pytorch-lantern').version
 except DistributionNotFound:
     pass
 

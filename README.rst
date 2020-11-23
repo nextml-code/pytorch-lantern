@@ -1,11 +1,11 @@
 ================
-Pytorch Wildfire
+Pytorch Lantern
 ================
 
-.. image:: https://badge.fury.io/py/pytorch-wildfire.svg
-       :target: https://badge.fury.io/py/pytorch-wildfire
+.. image:: https://badge.fury.io/py/pytorch-lantern.svg
+       :target: https://badge.fury.io/py/pytorch-lantern
 
-Wildfire contains our process of bringing a project to fruition as
+Lantern contains our process of bringing a project to fruition as
 efficiently as possible. This is subject to change as we iterate and improve.
 This package implements tools and missing features to help bridge the gap
 between frameworks and libraries that we utilize.
@@ -16,7 +16,7 @@ The main packages and tools that we build around are:
 - pytorch-datastream
 - guild
 
-See the `documentation <https://pytorch-wildfire.readthedocs.io/en/latest/>`_
+See the `documentation <https://pytorch-lantern.readthedocs.io/en/latest/>`_
 for more information.
 
 Create new project with template
@@ -34,7 +34,7 @@ Setup project:
 
 .. code-block::
 
-    cookiecutter https://github.com/aiwizo/pytorch-wildfire-template.git
+    cookiecutter https://github.com/aiwizo/pytorch-lantern-template.git
     cd <new-project>
     poetry install
 
@@ -46,12 +46,12 @@ You can now train the placeholder model and inspect the results:
     guild run train
     guild tensorboard
 
-Use wildfire without templates
+Use lantern without templates
 ==============================
 
-Install wildfire from pypi using pip or poetry:
+Install lantern from pypi using pip or poetry:
 
 .. code-block::
 
-    poetry add pytorch-wildfire
-    # pip install pytorch-wildfire
+    poetry add pytorch-lantern
+    # pip install pytorch-lantern

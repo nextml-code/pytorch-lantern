@@ -1,11 +1,9 @@
 import torch
 from functools import wraps
 
-from wildfire.functional import structure_map
-from wildfire import module_device, module_train
-from wildfire import (
-    to_device, step
-)
+from lantern.functional import structure_map
+from lantern import module_device, module_eval
+from lantern.to_device import to_device
 
 
 def cpu_detach(x):
@@ -15,21 +13,20 @@ def cpu_detach(x):
         return x
 
 
-def train(model, optimizer, n_batches_per_step=1):
+def evaluate(model):
     device = module_device(model)
 
     def decorator(process_batch):
 
         @wraps(process_batch)
         @to_device(device)
-        @step(optimizer, n_batches_per_step=n_batches_per_step)
+        @torch.no_grad()
         def _process_batch(*args, **kwargs):
-            with module_train(model):
+            with module_eval(model):
                 return structure_map(
                     cpu_detach,
                     process_batch(*args, **kwargs),
                 )
-
         return _process_batch
 
     return decorator

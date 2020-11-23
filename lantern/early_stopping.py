@@ -1,6 +1,6 @@
 from typing import Optional
 
-from wildfire import FunctionalBase
+from lantern import FunctionalBase
 
 
 class EarlyStopping(FunctionalBase):
