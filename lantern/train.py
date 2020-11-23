@@ -3,9 +3,7 @@ from functools import wraps
 
 from lantern.functional import structure_map
 from lantern import module_device, module_train
-from lantern import (
-    to_device, step
-)
+from lantern import to_device, step
 
 
 def cpu_detach(x):
@@ -19,7 +17,6 @@ def train(model, optimizer, n_batches_per_step=1):
     device = module_device(model)
 
     def decorator(process_batch):
-
         @wraps(process_batch)
         @to_device(device)
         @step(optimizer, n_batches_per_step=n_batches_per_step)

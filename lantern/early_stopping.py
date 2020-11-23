@@ -25,10 +25,14 @@ class EarlyStopping(FunctionalBase):
             )
 
     def print(self):
-        print("".join([
-            f"best score: {self.best_score}, "
-            f"scores since improvement: {self.scores_since_improvement}"
-        ]))
+        print(
+            "".join(
+                [
+                    f"best score: {self.best_score}, "
+                    f"scores since improvement: {self.scores_since_improvement}"
+                ]
+            )
+        )
         return self
 
     def log(self):

@@ -12,21 +12,23 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../..'))
+
+sys.path.insert(0, os.path.abspath("../.."))
 sys.setrecursionlimit(1500)
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'pytorch-lantern'
-copyright = '2020, Aiwizo'
-author = 'Aiwizo'
+project = "pytorch-lantern"
+copyright = "2020, Aiwizo"
+author = "Aiwizo"
 
 # The full version, including alpha/beta/rc tags
 # release = '0.1.0'
 from pkg_resources import get_distribution, DistributionNotFound
+
 try:
-    release = get_distribution('pytorch-lantern').version
+    release = get_distribution("pytorch-lantern").version
 except DistributionNotFound:
     pass
 
@@ -37,14 +39,14 @@ except DistributionNotFound:
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'recommonmark',
-    'sphinx.ext.viewcode',
-    'sphinx_rtd_theme',
+    "sphinx.ext.autodoc",
+    "recommonmark",
+    "sphinx.ext.viewcode",
+    "sphinx_rtd_theme",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -52,7 +54,7 @@ templates_path = ['_templates']
 exclude_patterns = []
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = "sphinx"
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -67,4 +69,3 @@ html_theme = "sphinx_rtd_theme"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 # html_static_path = ['_static']
-

@@ -25,7 +25,8 @@ from lantern.progress_bar import ProgressBar
 from lantern.early_stopping import EarlyStopping
 
 from pkg_resources import get_distribution, DistributionNotFound
+
 try:
-    __version__ = get_distribution('pytorch-lantern').version
+    __version__ = get_distribution("pytorch-lantern").version
 except DistributionNotFound:
     pass

@@ -13,7 +13,6 @@ The main packages and tools that we build around are:
 - guild
 
 .. toctree::
-   :maxdepth: 2
    :caption: Contents:
 
    lantern

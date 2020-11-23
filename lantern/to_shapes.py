@@ -2,10 +2,10 @@ import torch
 
 
 def to_shapes(*args):
-    '''
+    """
     Helper function to convert nested dict / list of tensors to shapes
     for debugging
-    '''
+    """
     if len(args) == 1:
         x = args[0]
     else:
@@ -17,7 +17,7 @@ def to_shapes(*args):
         return [to_shapes(value) for value in x]
     elif type(x) == dict:
         return {key: to_shapes(value) for key, value in x.items()}
-    elif hasattr(x, 'shape'):
+    elif hasattr(x, "shape"):
         return x.shape
     else:
         return x

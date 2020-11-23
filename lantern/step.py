@@ -10,7 +10,7 @@ def step(optimizer, n_batches_per_step=1):
 
             if engine.state.iteration % n_batches_per_step == 0:
                 for param_group in optimizer.param_groups:
-                    for parameters in param_group['params']:
+                    for parameters in param_group["params"]:
                         if parameters.grad is not None:
                             parameters.grad.div_(n_batches_per_step)
 
@@ -18,5 +18,7 @@ def step(optimizer, n_batches_per_step=1):
                 optimizer.zero_grad()
 
             return result
+
         return batch_fn
+
     return decorator

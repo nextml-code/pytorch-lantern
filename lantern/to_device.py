@@ -22,14 +22,10 @@ def to_device_decorator(device):
         @wraps(fn)
         def wrapper(*args, **kwargs):
             fn(
-                *[
-                    to_device(value, device)
-                    for value in args
-                ],
-                **{
-                    key: to_device(value, device)
-                    for key, value in kwargs.items
-                },
+                *[to_device(value, device) for value in args],
+                **{key: to_device(value, device) for key, value in kwargs.items},
             )
+
         return wrapper
+
     return decorator

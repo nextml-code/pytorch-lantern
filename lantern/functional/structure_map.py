@@ -1,5 +1,3 @@
-
-
 def structure_map(fn, x):
     if type(x) is tuple:
         return tuple(structure_map(fn, value) for value in x)

@@ -13,6 +13,18 @@ lantern package
    :members:
    :undoc-members:
    :member-order: bysource
+.. autoclass:: lantern.Metrics
+   :members:
+   :undoc-members:
+   :member-order: bysource
+.. autoclass:: lantern.MapMetric
+   :members:
+   :undoc-members:
+   :member-order: bysource
+.. autoclass:: lantern.ReduceMetric
+   :members:
+   :undoc-members:
+   :member-order: bysource
 .. autoclass:: lantern.FunctionalBase
    :members:
    :undoc-members:
@@ -29,13 +41,3 @@ lantern package
 .. autofunction:: lantern.step
 .. autofunction:: lantern.to_device
 .. autofunction:: lantern.worker_init
-
-
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 3
-
-   lantern.functional
-   lantern.numpy

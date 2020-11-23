@@ -2,7 +2,7 @@ from tqdm import tqdm
 
 
 def ProgressBar(data_loader, metrics=None):
-    '''Simple progress bar with metrics'''
+    """Simple progress bar with metrics"""
     if metrics is None:
         return tqdm(data_loader, leave=False)
     else:

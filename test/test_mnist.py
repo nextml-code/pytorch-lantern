@@ -27,22 +27,19 @@ def test_mnist():
 
     optimizer = optim.Adadelta(model.parameters(), lr=5e-3)
 
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,))
-    ])
+    transform = transforms.Compose(
+        [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
+    )
 
     gradient_dataset = datastream.Dataset.from_subscriptable(
-        datasets.MNIST('data', train=True, transform=transform, download=True)
+        datasets.MNIST("data", train=True, transform=transform, download=True)
     )
     early_stopping_dataset = datastream.Dataset.from_subscriptable(
-        datasets.MNIST('data', train=False, transform=transform)
+        datasets.MNIST("data", train=False, transform=transform)
     )
 
     gradient_data_loader = (
-        datastream.Datastream(gradient_dataset)
-        .take(16 * 4)
-        .data_loader(batch_size=16)
+        datastream.Datastream(gradient_dataset).take(16 * 4).data_loader(batch_size=16)
     )
     early_stopping_data_loader = (
         datastream.Datastream(early_stopping_dataset)
@@ -57,7 +54,7 @@ def test_mnist():
     tensorboard_logger = torch.utils.tensorboard.SummaryWriter()
     early_stopping = lantern.EarlyStopping()
     gradient_metrics = lantern.Metrics(
-        name='gradient',
+        name="gradient",
         tensorboard_logger=tensorboard_logger,
         metrics=dict(
             loss=lantern.MapMetric(lambda examples, predictions, loss: loss),
@@ -68,7 +65,7 @@ def test_mnist():
 
         with lantern.module_train(model):
             for examples, targets in lantern.ProgressBar(
-                gradient_data_loader, metrics=gradient_metrics[['loss']]
+                gradient_data_loader, metrics=gradient_metrics[["loss"]]
             ):
                 predictions = model(examples)
                 loss = F.nll_loss(predictions, targets)
@@ -77,9 +74,9 @@ def test_mnist():
                 optimizer.zero_grad()
 
                 (
-                    gradient_metrics
-                    .update_(examples, predictions.detach(), loss.detach())
-                    .log_()
+                    gradient_metrics.update_(
+                        examples, predictions.detach(), loss.detach()
+                    ).log_()
                 )
                 sleep(0.5)
         gradient_metrics.print()
@@ -89,9 +86,7 @@ def test_mnist():
                 name=name,
                 tensorboard_logger=tensorboard_logger,
                 metrics=dict(
-                    loss=lantern.MapMetric(
-                        lambda examples, predictions, loss: loss
-                    ),
+                    loss=lantern.MapMetric(lambda examples, predictions, loss: loss),
                 ),
             )
             for name in evaluate_data_loaders.keys()
@@ -99,26 +94,22 @@ def test_mnist():
 
         with lantern.module_eval(model), torch.no_grad():
             for name, data_loader in evaluate_data_loaders.items():
-                for examples, targets in tqdm(
-                    data_loader, desc=name, leave=False
-                ):
+                for examples, targets in tqdm(data_loader, desc=name, leave=False):
                     predictions = model(examples)
                     loss = F.nll_loss(predictions, targets)
-                    evaluate_metrics[name].update_(
-                        examples, predictions, loss
-                    )
+                    evaluate_metrics[name].update_(examples, predictions, loss)
                 evaluate_metrics[name].log_().print()
 
         early_stopping = early_stopping.score(
-            -evaluate_metrics['evaluate_early_stopping']['loss'].compute()
+            -evaluate_metrics["evaluate_early_stopping"]["loss"].compute()
         )
         if early_stopping.scores_since_improvement == 0:
-            torch.save(model.state_dict(), 'model.pt')
-            torch.save(optimizer.state_dict(), 'optimizer.pt')
+            torch.save(model.state_dict(), "model.pt")
+            torch.save(optimizer.state_dict(), "optimizer.pt")
         elif early_stopping.scores_since_improvement > 5:
             break
         early_stopping.print()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_mnist()

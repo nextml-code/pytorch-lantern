@@ -10,6 +10,7 @@ def set_seeds(seed):
 
     try:
         import imgaug
+
         imgaug.seed(seed + 4)
     except ImportError:
         pass

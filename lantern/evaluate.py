@@ -17,7 +17,6 @@ def evaluate(model):
     device = module_device(model)
 
     def decorator(process_batch):
-
         @wraps(process_batch)
         @to_device(device)
         @torch.no_grad()
@@ -27,6 +26,7 @@ def evaluate(model):
                     cpu_detach,
                     process_batch(*args, **kwargs),
                 )
+
         return _process_batch
 
     return decorator

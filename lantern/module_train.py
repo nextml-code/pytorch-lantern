@@ -2,7 +2,8 @@ from functools import wraps, partial
 
 
 class ModuleTrain:
-    '''Can be used as a decorator or context manager'''
+    """Can be used as a decorator or context manager"""
+
     def __init__(self, module, training=True):
         self.module = module
         self.training = training
@@ -20,6 +21,7 @@ class ModuleTrain:
         def wrapper(*args, **kwargs):
             with ModuleTrain(self.module, self.training):
                 return fn(*args, **kwargs)
+
         return wrapper
 
 

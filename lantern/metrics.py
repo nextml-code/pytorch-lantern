@@ -13,8 +13,7 @@ class MetricsView:
 
     def compute(self):
         return {
-            name: self.metrics_container.metrics[name].compute()
-            for name in self.names
+            name: self.metrics_container.metrics[name].compute() for name in self.names
         }
 
 
@@ -38,26 +37,26 @@ class Metrics:
         return self
 
     def compute(self):
-        return {
-            name: metric.compute()
-            for name, metric in self.metrics.items()
-        }
+        return {name: metric.compute() for name, metric in self.metrics.items()}
 
     def log_(self):
         # TODO
         return self
 
     def table(self):
-        return '\n'.join([
-            f'{self.name}:',
-            textwrap.indent(
-                (
-                    pd.Series(self.compute())
-                    .to_string(name=True, dtype=False, index=True)
+        return "\n".join(
+            [
+                f"{self.name}:",
+                textwrap.indent(
+                    (
+                        pd.Series(self.compute()).to_string(
+                            name=True, dtype=False, index=True
+                        )
+                    ),
+                    prefix="  ",
                 ),
-                prefix='  ',
-            ),
-        ])
+            ]
+        )
 
     def print(self):
         print(self.table())

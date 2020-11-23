@@ -2,7 +2,8 @@ from functools import wraps, partial
 
 
 class RequiresGrad:
-    '''Can be used as a decorator or context manager'''
+    """Can be used as a decorator or context manager"""
+
     def __init__(self, module, grad=True):
         if type(grad) is not bool:
             raise TypeError('Input argument "grad" must be bool')
@@ -11,7 +12,10 @@ class RequiresGrad:
         self.grad = grad
 
     def __enter__(self):
-        self.named_requires_grads = {name: parameter.requires_grad for name, parameter in self.module.named_parameters()}
+        self.named_requires_grads = {
+            name: parameter.requires_grad
+            for name, parameter in self.module.named_parameters()
+        }
 
         for parameter in self.module.parameters():
             parameter.requires_grad = self.grad
@@ -27,6 +31,7 @@ class RequiresGrad:
         def wrapper(*args, **kwargs):
             with RequiresGrad(self.module, self.grad):
                 return fn(*args, **kwargs)
+
         return wrapper
 
 
@@ -49,11 +54,11 @@ def test_requires_grad():
             return self.a(x)
 
     model = A()
-    assert(all(map(lambda x: not x.requires_grad, model.parameters())))
+    assert all(map(lambda x: not x.requires_grad, model.parameters()))
 
     with requires_grad(model):
-        assert(all(map(lambda x: x.requires_grad, model.parameters())))
-    assert(all(map(lambda x: not x.requires_grad, model.parameters())))
+        assert all(map(lambda x: x.requires_grad, model.parameters()))
+    assert all(map(lambda x: not x.requires_grad, model.parameters()))
 
 
 def test_nested():
@@ -80,24 +85,24 @@ def test_nested():
             return self.a(x)
 
     model = Outer()
-    assert(all(map(lambda x: not x.requires_grad, model.parameters())))
+    assert all(map(lambda x: not x.requires_grad, model.parameters()))
 
     with requires_grad(model):
         with requires_nograd(model):
-            assert(all(map(lambda x: not x.requires_grad, model.parameters())))
-        assert(all(map(lambda x: x.requires_grad, model.parameters())))
-    assert(all(map(lambda x: not x.requires_grad, model.parameters())))
+            assert all(map(lambda x: not x.requires_grad, model.parameters()))
+        assert all(map(lambda x: x.requires_grad, model.parameters()))
+    assert all(map(lambda x: not x.requires_grad, model.parameters()))
 
     with requires_grad(model):
         with requires_nograd(model.inner):
-            assert(all(map(lambda x: not x.requires_grad, model.inner.parameters())))
-        assert(all(map(lambda x: x.requires_grad, model.parameters())))
-    assert(all(map(lambda x: not x.requires_grad, model.parameters())))
+            assert all(map(lambda x: not x.requires_grad, model.inner.parameters()))
+        assert all(map(lambda x: x.requires_grad, model.parameters()))
+    assert all(map(lambda x: not x.requires_grad, model.parameters()))
 
     with requires_grad(model.inner):
-        assert(all(map(lambda x: x.requires_grad, model.inner.parameters())))
-        assert(any(map(lambda x: not x.requires_grad, model.parameters())))
+        assert all(map(lambda x: x.requires_grad, model.inner.parameters()))
+        assert any(map(lambda x: not x.requires_grad, model.parameters()))
         with requires_nograd(model):
-            assert(all(map(lambda x: not x.requires_grad, model.parameters())))
-        assert(all(map(lambda x: x.requires_grad, model.inner.parameters())))
-    assert(all(map(lambda x: not x.requires_grad, model.parameters())))
+            assert all(map(lambda x: not x.requires_grad, model.parameters()))
+        assert all(map(lambda x: x.requires_grad, model.inner.parameters()))
+    assert all(map(lambda x: not x.requires_grad, model.parameters()))
