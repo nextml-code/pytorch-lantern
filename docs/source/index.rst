@@ -8,9 +8,9 @@ between frameworks and libraries that we utilize.
 
 The main packages and tools that we build around are:
 
-- `pytorch <https://pytorch.org>`
-- `pytorch-datastream <https://github.com/Aiwizo/pytorch-datastream>`
-- `guild <https://guild.ai>`
+- `pytorch <https://pytorch.org>`_
+- `pytorch-datastream <https://github.com/Aiwizo/pytorch-datastream>`_
+- `guild <https://guild.ai>`_
 
 .. toctree::
    :caption: Contents:

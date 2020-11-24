@@ -14,9 +14,9 @@ The main packages and tools that we build around are:
 
 Install 
 
-- `pytorch <https://pytorch.org>`
-- `pytorch-datastream <https://github.com/Aiwizo/pytorch-datastream>`
-- `guild <https://guild.ai>`
+- `pytorch <https://pytorch.org>`_
+- `pytorch-datastream <https://github.com/Aiwizo/pytorch-datastream>`_
+- `guild <https://guild.ai>`_
 
 
 See the `documentation <https://pytorch-lantern.readthedocs.io/en/latest/>`_
