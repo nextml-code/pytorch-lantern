@@ -12,9 +12,12 @@ between frameworks and libraries that we utilize.
 
 The main packages and tools that we build around are:
 
-- pytorch
-- pytorch-datastream
-- guild
+Install 
+
+- `pytorch <https://pytorch.org>`
+- `pytorch-datastream <https://github.com/Aiwizo/pytorch-datastream>`
+- `guild <https://guild.ai>`
+
 
 See the `documentation <https://pytorch-lantern.readthedocs.io/en/latest/>`_
 for more information.
