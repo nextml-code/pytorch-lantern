@@ -27,6 +27,7 @@ jobs:
     - name: Build wheels
       run: |
         source $HOME/.poetry/env
+        poetry version $(git tag --points-at HEAD)
         poetry build
 
     - name: Upload

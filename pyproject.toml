@@ -1,9 +1,12 @@
 [tool.poetry]
-name = "lantern"
+name = "pytorch-lantern"
 version = "0.0.0"
 description = "Pytorch project template and related tools"
 authors = ["Aiwizo"]
 license = "Apache 2"
+packages = [
+    { include = "lantern" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.7"
