@@ -4,14 +4,10 @@ from lantern import FunctionalBase
 
 
 class EarlyStopping(FunctionalBase):
+    """Keeps track of the best score and how long ago it was calculated."""
+
     best_score: Optional[float] = None
     scores_since_improvement: int = -1
-
-    # def __init__(self, best_score=None, scores_since_improvement=-1):
-    #     super().__init__(
-    #         best_score=best_score,
-    #         scores_since_improvement=scores_since_improvement,
-    #     )
 
     def score(self, value):
         if self.best_score is None or value >= self.best_score:
