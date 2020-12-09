@@ -57,7 +57,7 @@ def test_mnist():
         name="gradient",
         tensorboard_logger=tensorboard_logger,
         metrics=dict(
-            loss=lantern.MapMetric(lambda examples, predictions, loss: loss),
+            loss=lantern.ReduceMetric(lambda state, examples, predictions, loss: loss),
         ),
     )
 
