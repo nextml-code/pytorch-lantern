@@ -52,7 +52,7 @@ def test_mnist():
     )
 
     tensorboard_logger = torch.utils.tensorboard.SummaryWriter()
-    early_stopping = lantern.EarlyStopping()
+    early_stopping = lantern.EarlyStopping(tensorboard_logger=tensorboard_logger)
     gradient_metrics = lantern.Metrics(
         name="gradient",
         tensorboard_logger=tensorboard_logger,
@@ -108,7 +108,7 @@ def test_mnist():
             torch.save(optimizer.state_dict(), "optimizer.pt")
         elif early_stopping.scores_since_improvement > 5:
             break
-        early_stopping.print()
+        early_stopping.log(epoch).print()
 
 
 if __name__ == "__main__":
