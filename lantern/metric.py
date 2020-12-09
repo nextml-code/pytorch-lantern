@@ -2,9 +2,12 @@ import numpy as np
 
 
 class ReduceMetric:
-    def __init__(self, reduce_fn, compute_fn, initial_state=None):
+    def __init__(self, reduce_fn, compute_fn=None, initial_state=None):
         self.reduce_fn = reduce_fn
-        self.compute_fn = compute_fn
+        if compute_fn is None:
+            self.compute_fn = lambda x: x
+        else:
+            self.compute_fn = compute_fn
         self.state = initial_state
 
     def reduce(self, *args, **kwargs):
