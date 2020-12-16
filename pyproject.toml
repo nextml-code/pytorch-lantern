@@ -8,23 +8,23 @@ readme = "README.rst"
 repository = "https://github.com/Aiwizo/pytorch-lantern"
 documentation = "https://pytorch-lantern.readthedocs.io"
 keywords = [
-  "pytorch",
-  "machine",
-  "learning"
+    "pytorch",
+    "machine",
+    "learning"
 ]
 # some classifiers are added automatically, see https://python-poetry.org/docs/pyproject/#classifiers
 classifiers = [
-  "Development Status :: 3 - Alpha",
-  "Environment :: Other Environment",
-  "License :: OSI Approved :: Apache Software License",
-  "Operating System :: OS Independent",
-  "Intended Audience :: Developers",
-  "Intended Audience :: Science/Research",
-  "Topic :: Scientific/Engineering",
-  "Topic :: Scientific/Engineering :: Artificial Intelligence",
-  "Topic :: Software Development",
-  "Topic :: Software Development :: Libraries",
-  "Topic :: Software Development :: Libraries :: Python Modules"
+    "Development Status :: 3 - Alpha",
+    "Environment :: Other Environment",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules"
 ]
 packages = [
     { include = "lantern" },
