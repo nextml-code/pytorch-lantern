@@ -1,9 +1,10 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Extra
 
 
 class FunctionalBase(BaseModel):
     class Config:
         allow_mutation = False
+        extra = Extra.forbid
 
     def map(self, fn, *args, **kwargs):
         return fn(self, *args, **kwargs)
