@@ -1,5 +1,5 @@
 def Epochs(max_epochs):
     """Simple generator that prints the current epoch"""
-    for epoch in range(max_epochs):
-        print(f"------ epoch: {epoch + 1} / {max_epochs} ------")
+    for epoch in range(1, max_epochs + 1):
+        print(f"------ epoch: {epoch} / {max_epochs} ------")
         yield epoch
