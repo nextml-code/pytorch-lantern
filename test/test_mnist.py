@@ -14,6 +14,7 @@ from lantern import ModuleCompose
 
 
 def test_mnist():
+    torch.set_grad_enabled(False)
 
     device = torch.device("cpu")
     model = ModuleCompose(
@@ -31,15 +32,15 @@ def test_mnist():
         [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
     )
 
-    gradient_dataset = datastream.Dataset.from_subscriptable(
+    train_dataset = datastream.Dataset.from_subscriptable(
         datasets.MNIST("data", train=True, transform=transform, download=True)
     )
     early_stopping_dataset = datastream.Dataset.from_subscriptable(
         datasets.MNIST("data", train=False, transform=transform)
     )
 
-    gradient_data_loader = (
-        datastream.Datastream(gradient_dataset).take(16 * 4).data_loader(batch_size=16)
+    train_data_loader = (
+        datastream.Datastream(train_dataset).take(16 * 4).data_loader(batch_size=16)
     )
     early_stopping_data_loader = (
         datastream.Datastream(early_stopping_dataset)
@@ -47,58 +48,55 @@ def test_mnist():
         .data_loader(batch_size=16)
     )
     evaluate_data_loaders = dict(
-        evaluate_gradient=gradient_data_loader,
+        evaluate_train=train_data_loader,
         evaluate_early_stopping=early_stopping_data_loader,
     )
 
     tensorboard_logger = torch.utils.tensorboard.SummaryWriter()
     early_stopping = lantern.EarlyStopping(tensorboard_logger=tensorboard_logger)
-    gradient_metrics = lantern.Metrics(
-        name="gradient",
-        tensorboard_logger=tensorboard_logger,
-        metrics=dict(
-            loss=lantern.ReduceMetric(lambda state, examples, predictions, loss: loss),
-        ),
+    train_metrics = dict(
+        loss=lantern.ReduceMetric(lambda state, loss: loss.item()),
     )
 
     for epoch in lantern.Epochs(2):
 
-        with lantern.module_train(model):
-            for examples, targets in lantern.ProgressBar(
-                gradient_data_loader, metrics=gradient_metrics[["loss"]]
-            ):
+        for examples, targets in lantern.ProgressBar(
+            train_data_loader, "train", train_metrics
+        ):
+            with lantern.module_train(model), torch.enable_grad():
                 predictions = model(examples)
                 loss = F.nll_loss(predictions, targets)
                 loss.backward()
-                optimizer.step()
-                optimizer.zero_grad()
+            optimizer.step()
+            optimizer.zero_grad()
 
-                (
-                    gradient_metrics.update_(
-                        examples, predictions.detach(), loss.detach()
-                    ).log_()
-                )
-                sleep(0.5)
-        gradient_metrics.print()
+            train_metrics["loss"].update_(loss)
+            sleep(0.5)
+
+            for name, metric in train_metrics.items():
+                metric.log(tensorboard_logger, "train", name, epoch)
+
+        print(lantern.MetricTable("train", train_metrics))
 
         evaluate_metrics = {
-            name: lantern.Metrics(
-                name=name,
-                tensorboard_logger=tensorboard_logger,
-                metrics=dict(
-                    loss=lantern.MapMetric(lambda examples, predictions, loss: loss),
-                ),
+            name: dict(
+                loss=lantern.MapMetric(lambda loss: loss.item()),
             )
-            for name in evaluate_data_loaders.keys()
+            for name in evaluate_data_loaders
         }
 
-        with lantern.module_eval(model), torch.no_grad():
-            for name, data_loader in evaluate_data_loaders.items():
-                for examples, targets in tqdm(data_loader, desc=name, leave=False):
+        for name, data_loader in evaluate_data_loaders.items():
+            for examples, targets in tqdm(data_loader, desc=name, leave=False):
+                with lantern.module_eval(model):
                     predictions = model(examples)
                     loss = F.nll_loss(predictions, targets)
-                    evaluate_metrics[name].update_(examples, predictions, loss)
-                evaluate_metrics[name].log_().print()
+
+                evaluate_metrics[name]["loss"].update_(loss)
+
+            for metric_name, metric in evaluate_metrics[name].items():
+                metric.log(tensorboard_logger, name, metric_name, epoch)
+
+            print(lantern.MetricTable(name, evaluate_metrics[name]))
 
         early_stopping = early_stopping.score(
             -evaluate_metrics["evaluate_early_stopping"]["loss"].compute()
