@@ -13,7 +13,7 @@ lantern package
    :members:
    :undoc-members:
    :member-order: bysource
-.. autoclass:: lantern.Metrics
+.. autoclass:: lantern.MetricTable
    :members:
    :undoc-members:
    :member-order: bysource
@@ -29,6 +29,10 @@ lantern package
    :members:
    :undoc-members:
    :member-order: bysource
+.. autoclass:: lantern.Tensor
+   :members:
+   :undoc-members:
+   :member-order: bysource
 
 .. autofunction:: lantern.Epochs
 .. autofunction:: lantern.module_device
@@ -40,4 +44,5 @@ lantern package
 .. autofunction:: lantern.update_cpu_model
 .. autofunction:: lantern.step
 .. autofunction:: lantern.to_device
-.. autofunction:: lantern.worker_init
+.. autofunction:: lantern.worker_init_fn
+.. autofunction:: lantern.set_learning_rate

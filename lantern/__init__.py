@@ -6,8 +6,8 @@ from lantern.numpy.numpy_seed import numpy_seed
 from lantern.functional_base import FunctionalBase
 from lantern.tensor import Tensor
 from lantern.epochs import Epochs
-from lantern.metric import ReduceMetric, MapMetric
-from lantern.metrics import Metrics
+from lantern.metric import Metric, ReduceMetric, MapMetric
+from lantern.metric_table import MetricTable
 from lantern.module_device import module_device
 from lantern.module_compose import ModuleCompose
 from lantern.to_device import to_device
@@ -16,7 +16,7 @@ from lantern.module_train import module_train, module_eval
 from lantern.requires_grad import requires_grad, requires_nograd
 from lantern.set_learning_rate import set_learning_rate
 from lantern.set_seeds import set_seeds
-from lantern.worker_init import worker_init
+from lantern.worker_init_fn import worker_init_fn
 from lantern.evaluate import evaluate
 from lantern.step import step
 from lantern.train import train

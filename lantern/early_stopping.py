@@ -13,7 +13,6 @@ class EarlyStopping(FunctionalBase):
 
     class Config:
         arbitrary_types_allowed = True
-        allow_mutation = False
 
     def score(self, value):
         if self.best_score is None or value >= self.best_score:
