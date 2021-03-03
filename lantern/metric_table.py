@@ -1,12 +1,15 @@
 import textwrap
 import pandas as pd
-from lantern import FunctionalBase, Metric
-from typing import Dict
+from lantern import FunctionalBase
+from typing import Dict, Union, Any
+
+# from wire_damage.tools import MapMetric, ReduceMetric, AggregateMetric
 
 
 class MetricTable(FunctionalBase):
     name: str
-    metrics: Dict[str, Metric]
+    metrics: Dict[str, Any]
+    # metrics: Dict[str, Union[MapMetric, ReduceMetric, AggregateMetric]]
 
     class Config:
         arbitrary_types_allowed = True
@@ -18,7 +21,11 @@ class MetricTable(FunctionalBase):
         )
 
     def compute(self):
-        return {name: metric.compute() for name, metric in self.metrics.items()}
+        return {
+            metric_name: value
+            for metrics in self.metrics.values()
+            for metric_name, value in metrics.compute().items()
+        }
 
     def table(self):
         return "\n".join(

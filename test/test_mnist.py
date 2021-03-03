@@ -55,7 +55,7 @@ def test_mnist():
     tensorboard_logger = torch.utils.tensorboard.SummaryWriter()
     early_stopping = lantern.EarlyStopping(tensorboard_logger=tensorboard_logger)
     train_metrics = dict(
-        loss=lantern.ReduceMetric(lambda state, loss: loss.item()),
+        loss=lantern.Metric().reduce(lambda state, loss: dict(loss=loss.item())),
     )
 
     for epoch in lantern.Epochs(2):
@@ -73,14 +73,14 @@ def test_mnist():
             train_metrics["loss"].update_(loss)
             sleep(0.5)
 
-            for name, metric in train_metrics.items():
-                metric.log(tensorboard_logger, "train", name, epoch)
+            for metrics in train_metrics.values():
+                metrics.log(tensorboard_logger, "train", epoch)
 
         print(lantern.MetricTable("train", train_metrics))
 
         evaluate_metrics = {
             name: dict(
-                loss=lantern.MapMetric(lambda loss: loss.item()),
+                loss=lantern.Metric().reduce(lambda state, loss: dict(loss=loss.item())),
             )
             for name in evaluate_data_loaders
         }
@@ -93,13 +93,13 @@ def test_mnist():
 
                 evaluate_metrics[name]["loss"].update_(loss)
 
-            for metric_name, metric in evaluate_metrics[name].items():
-                metric.log(tensorboard_logger, name, metric_name, epoch)
+            for metrics in evaluate_metrics[name].values():
+                metrics.log(tensorboard_logger, name, epoch)
 
             print(lantern.MetricTable(name, evaluate_metrics[name]))
 
         early_stopping = early_stopping.score(
-            -evaluate_metrics["evaluate_early_stopping"]["loss"].compute()
+            -evaluate_metrics["evaluate_early_stopping"]["loss"].compute()["loss"]
         )
         if early_stopping.scores_since_improvement == 0:
             torch.save(model.state_dict(), "model.pt")
