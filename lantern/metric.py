@@ -5,9 +5,8 @@ from typing import Callable, Any, Optional, Dict, List, Union
 from pydantic import BaseModel, Extra
 
 
-class MapMetric(BaseModel):
-    map_fn_: Optional[Callable[..., Any]]
-    # map_fn: Optional[Callable] = lambda value: self, value  # HACK: why are we getting self?
+class MapMetric(FunctionalBase):
+    map_fn: Optional[Callable[..., Any]]
     state: List[Any]
 
     class Config:
@@ -15,44 +14,33 @@ class MapMetric(BaseModel):
         allow_mutation = True
         extra = Extra.forbid
 
-    def __init__(self, map_fn_=None, state=list()):
+    def __init__(self, map_fn=None, state=list()):
         super().__init__(
-            map_fn_=map_fn_,
+            map_fn=map_fn,
             state=state,
         )
 
-    def replace(self, **kwargs):
-        new_dict = self.dict()
-        new_dict.update(**kwargs)
-        return type(self)(**new_dict)
-
     def map(self, fn):
-        # return self.replace(fn=lambda value: fn(self.map_fn_(value)))
-        # HACK: why doesn't the above work?
-        if self.map_fn_ is None:
-            return MapMetric(
-                map_fn_=fn,
-                state=self.state,
-            )
+        if self.map_fn is None:
+            return self.replace(map_fn=fn)
         else:
-            return MapMetric(
-                map_fn_=lambda *args, **kwargs: fn(self.map_fn_(*args, **kwargs)),
-                state=self.state,
+            return self.replace(
+                map_fn=lambda *args, **kwargs: fn(self.map_fn(*args, **kwargs))
             )
 
     def starmap(self, fn):
         return self.map(star(fn))
 
     def reduce(self, fn):
-        if self.map_fn_ is None:
+        if self.map_fn is None:
             return ReduceMetric(
-                map_fn_=lambda *args: args,
+                map_fn=lambda *args: args,
                 reduce_fn=lambda state, args: fn(state, *args),
                 state=self.state,  # TODO: apply function on state...
             )
         else:
             return ReduceMetric(
-                map_fn_=self.map_fn_,
+                map_fn=self.map_fn,
                 reduce_fn=fn,
                 state=self.state,
             )
@@ -64,22 +52,32 @@ class MapMetric(BaseModel):
         return self.aggregate(star(fn))
 
     def update_(self, *args, **kwargs):
-        if self.map_fn_ is None:
+        if self.map_fn is None:
             self.state.append(args)
         else:
-            self.state.append(self.map_fn_(*args, **kwargs))
+            self.state.append(self.map_fn(*args, **kwargs))
         return self
 
     def update(self, *args, **kwargs):
-        if self.map_fn_ is None:
-            return self.replace(state=self.state + ([args[0]] if len(args) == 1 else [args]))
+        if self.map_fn is None:
+            return self.replace(
+                state=self.state + ([args[0]] if len(args) == 1 else [args])
+            )
         else:
-            return self.replace(state=self.state + [self.map_fn_(*args, **kwargs)])
+            return self.replace(state=self.state + [self.map_fn(*args, **kwargs)])
 
     def compute(self):
         return self.state
 
-    def log(self, tensorboard_logger, tag, step=None):
+    def log(self, tensorboard_logger, tag, metric_name, step=None):
+        tensorboard_logger.add_scalar(
+            f"{tag}/{metric_name}",
+            self.compute(),
+            step,
+        )
+        return self
+
+    def log_dict(self, tensorboard_logger, tag, step=None):
         for name, value in self.compute().items():
             tensorboard_logger.add_scalar(
                 f"{tag}/{name}",
@@ -92,15 +90,14 @@ class MapMetric(BaseModel):
 Metric = MapMetric
 
 
-class ReduceMetric(BaseModel):
-    map_fn_: Callable[..., Any]
+class ReduceMetric(FunctionalBase):
+    map_fn: Callable[..., Any]
     reduce_fn: Callable[..., Any]
     state: Any
 
     class Config:
         arbitrary_types_allowed = True
         allow_mutation = True
-        extra = Extra.forbid
 
     def replace(self, **kwargs):
         new_dict = self.dict()
@@ -108,18 +105,26 @@ class ReduceMetric(BaseModel):
         return type(self)(**new_dict)
 
     def update_(self, *args, **kwargs):
-        self.state = self.reduce_fn(self.state, self.map_fn_(*args, **kwargs))
+        self.state = self.reduce_fn(self.state, self.map_fn(*args, **kwargs))
         return self
 
     def update(self, *args, **kwargs):
         return self.replace(
-            state=self.reduce_fn(self.state, self.map_fn_(*args, **kwargs))
+            state=self.reduce_fn(self.state, self.map_fn(*args, **kwargs))
         )
 
     def compute(self):
         return self.state
 
-    def log(self, tensorboard_logger, tag, step=None):
+    def log(self, tensorboard_logger, tag, metric_name, step=None):
+        tensorboard_logger.add_scalar(
+            f"{tag}/{metric_name}",
+            self.compute(),
+            step,
+        )
+        return self
+
+    def log_dict(self, tensorboard_logger, tag, step=None):
         for name, value in self.compute().items():
             tensorboard_logger.add_scalar(
                 f"{tag}/{name}",
@@ -129,24 +134,16 @@ class ReduceMetric(BaseModel):
         return self
 
 
-class AggregateMetric(BaseModel):
+class AggregateMetric(FunctionalBase):
     metric: Union[MapMetric, ReduceMetric]
     aggregate_fn: Callable
 
     class Config:
         arbitrary_types_allowed = True
         allow_mutation = True
-        extra = Extra.forbid
-
-    def replace(self, **kwargs):
-        new_dict = self.dict()
-        new_dict.update(**kwargs)
-        return type(self)(**new_dict)
 
     def map(self, fn):
-        return self.replace(
-            aggregate_fn=lambda state: fn(self.aggregate_fn(state))
-        )
+        return self.replace(aggregate_fn=lambda state: fn(self.aggregate_fn(state)))
 
     def starmap(self, fn):
         return self.map(star(fn))
@@ -161,7 +158,15 @@ class AggregateMetric(BaseModel):
     def compute(self):
         return self.aggregate_fn(self.metric.compute())
 
-    def log(self, tensorboard_logger, tag, step=None):
+    def log(self, tensorboard_logger, tag, metric_name, step=None):
+        tensorboard_logger.add_scalar(
+            f"{tag}/{metric_name}",
+            self.compute(),
+            step,
+        )
+        return self
+
+    def log_dict(self, tensorboard_logger, tag, step=None):
         for name, value in self.compute().items():
             tensorboard_logger.add_scalar(
                 f"{tag}/{name}",
