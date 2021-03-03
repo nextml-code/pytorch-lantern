@@ -1,4 +1,5 @@
 import numpy as np
+import functools
 from lantern import FunctionalBase
 from lantern.functional import star
 from typing import Callable, Any, Optional, Dict, List, Union
@@ -12,38 +13,44 @@ class MapMetric(FunctionalBase):
     class Config:
         arbitrary_types_allowed = True
         allow_mutation = True
-        extra = Extra.forbid
 
-    def __init__(self, map_fn=None, state=list()):
+    def __init__(self, state=list(), map_fn=None):
         super().__init__(
-            map_fn=map_fn,
             state=state,
+            map_fn=map_fn,
         )
 
     def map(self, fn):
         if self.map_fn is None:
-            return self.replace(map_fn=fn)
+            map_fn = fn
         else:
-            return self.replace(
-                map_fn=lambda *args, **kwargs: fn(self.map_fn(*args, **kwargs))
-            )
+
+            def map_fn(*args, **kwargs):
+                return fn(self.map_fn(*args, **kwargs))
+
+        return self.replace(
+            map_fn=map_fn,
+            state=list(map(fn, self.state)),
+        )
 
     def starmap(self, fn):
         return self.map(star(fn))
 
-    def reduce(self, fn):
+    def reduce(self, fn, initial=None):
         if self.map_fn is None:
-            return ReduceMetric(
-                map_fn=lambda *args: args,
-                reduce_fn=lambda state, args: fn(state, *args),
-                state=self.state,  # TODO: apply function on state...
-            )
+
+            def reduce_fn(state, *args):
+                return fn(state, *args)
+
         else:
-            return ReduceMetric(
-                map_fn=self.map_fn,
-                reduce_fn=fn,
-                state=self.state,
-            )
+
+            def reduce_fn(state, args):
+                return fn(state, self.map_fn(args))
+
+        return ReduceMetric(
+            reduce_fn=reduce_fn,
+            state=functools.reduce(reduce_fn, self.state, initial),
+        )
 
     def aggregate(self, fn):
         return AggregateMetric(metric=self, aggregate_fn=fn)
@@ -86,12 +93,17 @@ class MapMetric(FunctionalBase):
             )
         return self
 
+    def __call__(self):
+        return self.compute()
+
+    def __iter__(self):
+        return iter(self.compute())
+
 
 Metric = MapMetric
 
 
 class ReduceMetric(FunctionalBase):
-    map_fn: Callable[..., Any]
     reduce_fn: Callable[..., Any]
     state: Any
 
@@ -99,19 +111,12 @@ class ReduceMetric(FunctionalBase):
         arbitrary_types_allowed = True
         allow_mutation = True
 
-    def replace(self, **kwargs):
-        new_dict = self.dict()
-        new_dict.update(**kwargs)
-        return type(self)(**new_dict)
-
     def update_(self, *args, **kwargs):
-        self.state = self.reduce_fn(self.state, self.map_fn(*args, **kwargs))
+        self.state = self.reduce_fn(self.state, *args, **kwargs)
         return self
 
     def update(self, *args, **kwargs):
-        return self.replace(
-            state=self.reduce_fn(self.state, self.map_fn(*args, **kwargs))
-        )
+        return self.replace(state=self.reduce_fn(self.state, *args, **kwargs))
 
     def compute(self):
         return self.state
@@ -176,5 +181,46 @@ class AggregateMetric(FunctionalBase):
         return self
 
 
-def test_metric():
-    pass
+def test_map_update():
+    assert Metric().map(lambda x: x * 2).update(2).compute() == [4]
+
+
+def test_map_after_update():
+    assert Metric().update(2).map(lambda x: x * 2).compute() == [4]
+
+
+def test_reduce():
+    assert Metric([2, 3]).reduce(lambda state, x: state + x, initial=0).compute() == 5
+
+
+def test_update_after_reduce():
+    assert (
+        Metric([2, 3]).reduce(lambda state, x: state + x, initial=0).update(2).compute()
+        == 7
+    )
+
+
+def test_aggregate():
+    assert Metric([2, 3, 4]).aggregate(lambda xs: np.mean(xs)).compute() == 3
+
+
+def test_map_after_aggregate():
+    assert (
+        Metric([2, 3, 4])
+        .aggregate(lambda xs: np.mean(xs))
+        .map(lambda x: x ** 2)
+        .compute()
+        == 9
+    )
+
+
+def test_update_last():
+    assert (
+        Metric()
+        .aggregate(lambda xs: np.mean(xs))
+        .map(lambda x: x ** 2)
+        .update(2)
+        .update(3)
+        .compute()
+        == 2.5 ** 2
+    )
