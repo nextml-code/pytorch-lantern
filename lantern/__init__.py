@@ -6,7 +6,7 @@ from lantern.numpy.numpy_seed import numpy_seed
 from lantern.functional_base import FunctionalBase
 from lantern.tensor import Tensor
 from lantern.epochs import Epochs
-from lantern.metric import Metric, ReduceMetric, MapMetric
+from lantern.metric import Metric
 from lantern.metric_table import MetricTable
 from lantern.module_device import module_device
 from lantern.module_compose import ModuleCompose

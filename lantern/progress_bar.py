@@ -13,5 +13,9 @@ def ProgressBar(data_loader, name, metrics: Optional[Dict[str, Metric]] = None):
             for item in tqdm_:
                 yield item
                 tqdm_.set_postfix(
-                    {name: metric.compute() for name, metric in metrics.items()}
+                    {
+                        name: value
+                        for metrics in metrics.values()
+                        for name, value in metrics.compute().items()
+                    }
                 )
