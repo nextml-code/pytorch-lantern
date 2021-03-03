@@ -12,10 +12,12 @@ def ProgressBar(data_loader, name, metrics: Optional[Dict[str, Metric]] = None):
         with tqdm(data_loader, desc=name, leave=False) as tqdm_:
             for item in tqdm_:
                 yield item
-                tqdm_.set_postfix(
-                    {
-                        name: value
-                        for metrics in metrics.values()
-                        for name, value in metrics.compute().items()
-                    }
-                )
+
+                log_dict = dict()
+                for metric_name, metric in metrics.items():
+                    metric_value = metric.compute()
+                    if isinstance(metric_value, dict):
+                        log_dict.update(**metric_value)
+                    else:
+                        log_dict[metric_name] = metric_value
+                tqdm_.set_postfix(log_dict)

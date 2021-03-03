@@ -21,11 +21,14 @@ class MetricTable(FunctionalBase):
         )
 
     def compute(self):
-        return {
-            metric_name: value
-            for metrics in self.metrics.values()
-            for metric_name, value in metrics.compute().items()
-        }
+        log_dict = dict()
+        for metric_name, metric in self.metrics.items():
+            metric_value = metric.compute()
+            if isinstance(metric_value, dict):
+                log_dict.update(**metric_value)
+            else:
+                log_dict[metric_name] = metric_value
+        return log_dict
 
     def table(self):
         return "\n".join(
