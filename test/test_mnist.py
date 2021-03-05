@@ -1,4 +1,6 @@
 from functools import partial
+from pathlib import Path
+import requests
 from time import sleep
 from tqdm import tqdm
 import torch
@@ -16,6 +18,29 @@ from lantern import ModuleCompose
 def test_mnist():
     torch.set_grad_enabled(False)
 
+    urls = {
+        "t10k-labels-idx1-ubyte.gz": "https://storage.googleapis.com/cvdf-datasets/mnist/t10k-labels-idx1-ubyte.gz",
+        "t10k-images-idx3-ubyte.gz": "https://storage.googleapis.com/cvdf-datasets/mnist/t10k-images-idx3-ubyte.gz",
+        "train-labels-idx1-ubyte.gz": "https://storage.googleapis.com/cvdf-datasets/mnist/train-labels-idx1-ubyte.gz",
+        "train-images-idx3-ubyte.gz": "https://storage.googleapis.com/cvdf-datasets/mnist/train-images-idx3-ubyte.gz",
+    }
+    raw = Path("data/MNIST/raw")
+    raw.mkdir(exist_ok=True, parents=True)
+    for name, url in urls.items():
+        request = requests.get(url, allow_redirects=True)
+        (raw / name).write_bytes(request.content)
+
+    transform = transforms.Compose(
+        [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
+    )
+
+    train_dataset = datastream.Dataset.from_subscriptable(
+        datasets.MNIST("data", train=True, transform=transform, download=True)
+    )
+    early_stopping_dataset = datastream.Dataset.from_subscriptable(
+        datasets.MNIST("data", train=False, transform=transform, download=True)
+    )
+
     device = torch.device("cpu")
     model = ModuleCompose(
         nn.Conv2d(1, 4, 3, 1),
@@ -28,16 +53,14 @@ def test_mnist():
 
     optimizer = optim.Adadelta(model.parameters(), lr=5e-3)
 
-    transform = transforms.Compose(
-        [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
-    )
+    
 
-    train_dataset = datastream.Dataset.from_subscriptable(
-        datasets.MNIST("data", train=True, transform=transform, download=True)
-    )
-    early_stopping_dataset = datastream.Dataset.from_subscriptable(
-        datasets.MNIST("data", train=False, transform=transform)
-    )
+    # train_dataset = datastream.Dataset.from_subscriptable(
+    #     datasets.MNIST("data", train=True download=True)
+    # )
+    # early_stopping_dataset = datastream.Dataset.from_subscriptable(
+    #     datasets.MNIST("data", train=False)
+    # )
 
     train_data_loader = (
         datastream.Datastream(train_dataset).take(16 * 4).data_loader(batch_size=16)
