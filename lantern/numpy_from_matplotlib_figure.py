@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 
 
-def figure_to_numpy(figure):
+def numpy_from_matplotlib_figure(figure):
     buffer = io.BytesIO()
     figure.savefig(buffer, format="png", dpi=90, bbox_inches="tight")
     buffer.seek(0)

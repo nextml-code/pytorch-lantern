@@ -1,10 +1,11 @@
 from lantern import functional
 
-from lantern.numpy.figure_to_numpy import figure_to_numpy
-from lantern.numpy.numpy_seed import numpy_seed
+from lantern.numpy_from_matplotlib_figure import numpy_from_matplotlib_figure
+from lantern.numpy_seed import numpy_seed
 
 from lantern.functional_base import FunctionalBase
 from lantern.tensor import Tensor
+from lantern.numpy import Numpy
 from lantern.epochs import Epochs
 from lantern.metric import Metric
 from lantern.metric_table import MetricTable
