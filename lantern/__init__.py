@@ -24,6 +24,7 @@ from lantern.train import train
 from lantern.update_cpu_model import update_cpu_model
 from lantern.progress_bar import ProgressBar
 from lantern.early_stopping import EarlyStopping
+from lantern.git_info import git_info
 
 from pkg_resources import get_distribution, DistributionNotFound
 
