@@ -1,9 +1,7 @@
 import numpy as np
 import functools
-from lantern import FunctionalBase
-from lantern.functional import star
-from typing import Callable, Any, Optional, Dict, List, Union
-from pydantic import BaseModel, Extra
+from lantern import FunctionalBase, star
+from typing import Callable, Any, Optional, List, Union
 
 
 class MapMetric(FunctionalBase):

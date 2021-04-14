@@ -41,27 +41,6 @@ def test_mnist():
         datasets.MNIST("data", train=False, transform=transform, download=True)
     )
 
-    device = torch.device("cpu")
-    model = ModuleCompose(
-        nn.Conv2d(1, 4, 3, 1),
-        partial(F.max_pool2d, kernel_size=2),
-        partial(torch.flatten, start_dim=1),
-        F.relu,
-        nn.Linear(676, 10),
-        partial(F.log_softmax, dim=1),
-    ).to(device)
-
-    optimizer = optim.Adadelta(model.parameters(), lr=5e-3)
-
-    
-
-    # train_dataset = datastream.Dataset.from_subscriptable(
-    #     datasets.MNIST("data", train=True download=True)
-    # )
-    # early_stopping_dataset = datastream.Dataset.from_subscriptable(
-    #     datasets.MNIST("data", train=False)
-    # )
-
     train_data_loader = (
         datastream.Datastream(train_dataset).take(16 * 4).data_loader(batch_size=16)
     )
@@ -74,6 +53,18 @@ def test_mnist():
         evaluate_train=train_data_loader,
         evaluate_early_stopping=early_stopping_data_loader,
     )
+
+    device = torch.device("cpu")
+    model = ModuleCompose(
+        nn.Conv2d(1, 4, 3, 1),
+        partial(F.max_pool2d, kernel_size=2),
+        partial(torch.flatten, start_dim=1),
+        F.relu,
+        nn.Linear(676, 10),
+        partial(F.log_softmax, dim=1),
+    ).to(device)
+
+    optimizer = optim.Adadelta(model.parameters(), lr=5e-3)
 
     tensorboard_logger = torch.utils.tensorboard.SummaryWriter()
     early_stopping = lantern.EarlyStopping(tensorboard_logger=tensorboard_logger)
