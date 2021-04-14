@@ -2,35 +2,51 @@ import numpy as np
 from functools import wraps
 
 
-def numpy_seed(seed):
-    """Function decorator that sets a temporary numpy seed during execution"""
+class NumpySeed:
+    """
+    Function decorator that sets a temporary numpy seed during execution.
+    Can be used as a decorator or context manager
+    """
 
-    def decorator(fn):
+    def __init__(self, seed):
+        self.seed = seed
+
+    def __enter__(self):
+        self.random_state = np.random.get_state()
+        np.random.seed(self.seed)
+        return self.random_state
+
+    def __exit__(self, type, value, traceback):
+        np.random.set_state(self.random_state)
+
+    def __call__(self, fn):
         @wraps(fn)
-        def seeded_function(*args, **kwargs):
-            random_state = np.random.get_state()
-            np.random.seed(seed)
-            output = fn(*args, **kwargs)
-            np.random.set_state(random_state)
-            return output
+        def wrapper(*args, **kwargs):
+            with NumpySeed(self.seed):
+                return fn(*args, **kwargs)
 
-        return seeded_function
-
-    return decorator
+        return wrapper
 
 
-def test_numpy_seed():
-    def get_random_uniform(min, max):
-        return np.random.random() * (max - min) + min
+numpy_seed = NumpySeed
 
+
+def test_unchanged_random_state():
     random_state = np.random.get_state()
-    numpy_seed(1)(get_random_uniform)(-1, 1)
+    with numpy_seed(1):
+        np.random.random()
     assert np.all(random_state[1] == np.random.get_state()[1])
 
-    assert numpy_seed(1)(get_random_uniform)(-1, 1) == numpy_seed(1)(
-        get_random_uniform
-    )(-1, 1)
 
-    assert numpy_seed(1)(get_random_uniform)(-1, 1) != numpy_seed(None)(
-        get_random_uniform
-    )(-1, 1)
+def test_same_result():
+    with numpy_seed(1):
+        result = np.random.random()
+
+    assert result == numpy_seed(1)(np.random.random)()
+
+
+def test_different_result():
+    with numpy_seed(1):
+        result = np.random.random()
+
+    assert result != numpy_seed(None)(np.random.random)()
