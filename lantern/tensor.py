@@ -193,3 +193,16 @@ def test_device():
         numbers: Tensor.float().cpu()
 
     Test(numbers=[1, 2, 3])
+
+
+def test_from_numpy():
+    from pydantic import BaseModel
+
+    class Test(BaseModel):
+        numbers: Tensor
+
+    numbers = np.array([1, 2, 3])
+    torch_numbers = Test(numbers=numbers).numbers
+
+    assert type(torch_numbers) == torch.Tensor
+    assert np.allclose(torch_numbers.numpy(), numbers)
