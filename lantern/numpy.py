@@ -7,14 +7,20 @@ class Numpy(np.ndarray):
         yield cls.validate
 
     @classmethod
-    def validate(cls, data, values, field, config):
-        return data
+    def validate(cls, data):
+        if isinstance(data, cls):
+            return data.view(np.ndarray)
+        elif isinstance(data, np.ndarray):
+            return data
+        else:
+            return np.array(data)
 
     @classmethod
     def ndim(cls, ndim):
-        class InheritNumpy(Numpy):
+        class InheritNumpy(cls):
             @classmethod
             def validate(cls, data):
+                data = super().validate(data)
                 if data.ndim != ndim:
                     raise ValueError(f"Expected {ndim} dims, got {data.ndim}")
                 return data
@@ -23,9 +29,10 @@ class Numpy(np.ndarray):
 
     @classmethod
     def short(cls, dims):
-        class InheritNumpy(Numpy):
+        class InheritNumpy(cls):
             @classmethod
             def validate(cls, data):
+                data = super().validate(data)
                 if data.ndim != len(dims):
                     raise ValueError(
                         f"Unexpected number of dims {data.ndim} for {dims}"
@@ -36,9 +43,10 @@ class Numpy(np.ndarray):
 
     @classmethod
     def shape(cls, *sizes):
-        class InheritNumpy(Numpy):
+        class InheritNumpy(cls):
             @classmethod
             def validate(cls, data):
+                data = super().validate(data)
                 for data_size, size in zip(data.shape, sizes):
                     if size != -1 and data_size != size:
                         raise ValueError(f"Expected size {size}, got {data_size}")
@@ -48,9 +56,10 @@ class Numpy(np.ndarray):
 
     @classmethod
     def between(cls, geq, leq):
-        class InheritNumpy(Numpy):
+        class InheritNumpy(cls):
             @classmethod
             def validate(cls, data):
+                data = super().validate(data)
                 data_min = data.min()
                 if data_min < geq:
                     raise ValueError(f"Expected min value {geq}, got {data_min}")
@@ -77,3 +86,24 @@ def test_validate():
 
     with raises(ValueError):
         Numpy.ndim(4).validate(np.ones((3, 4, 5)))
+
+
+def test_conversion():
+    from pydantic import BaseModel
+    import torch
+
+    class Test(BaseModel):
+        numbers: Numpy.short("N")
+
+    Test(numbers=[1.1, 2.1, 3.1])
+    Test(numbers=torch.tensor([1.1, 2.1, 3.1]))
+
+
+def test_chaining():
+    from pytest import raises
+
+    with raises(ValueError):
+        Numpy.ndim(4).short("NCH").validate(np.ones((3, 4, 5)))
+
+    with raises(ValueError):
+        Numpy.short("NCH").ndim(4).validate(np.ones((3, 4, 5)))
