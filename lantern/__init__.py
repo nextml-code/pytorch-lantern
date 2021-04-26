@@ -1,4 +1,3 @@
-from lantern.numpy_from_matplotlib_figure import numpy_from_matplotlib_figure
 from lantern.numpy_seed import numpy_seed
 from lantern.star import star
 from lantern.functional_base import FunctionalBase
@@ -7,8 +6,8 @@ from lantern.numpy import Numpy
 from lantern.epochs import Epochs
 from lantern.metric import Metric
 from lantern.metric_table import MetricTable
+from lantern.lambda_module import Lambda
 from lantern.module_device import module_device
-from lantern.module_compose import ModuleCompose
 from lantern.module_train import module_train, module_eval
 from lantern.requires_grad import requires_grad, requires_nograd
 from lantern.set_learning_rate import set_learning_rate

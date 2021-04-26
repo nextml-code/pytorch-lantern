@@ -1,7 +1,19 @@
 import numpy as np
+import io
+import cv2
 
 
 class Numpy(np.ndarray):
+    @staticmethod
+    def from_matplotlib_figure(figure):
+        buffer = io.BytesIO()
+        figure.savefig(buffer, format="png", dpi=90, bbox_inches="tight")
+        buffer.seek(0)
+        image = np.frombuffer(buffer.getvalue(), dtype=np.uint8)
+        buffer.close()
+        image = cv2.imdecode(image, 1)
+        return image
+
     @classmethod
     def __get_validators__(cls):
         yield cls.validate

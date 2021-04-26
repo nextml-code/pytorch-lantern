@@ -12,7 +12,6 @@ from torchvision import datasets, transforms
 import datastream
 
 import lantern
-from lantern import ModuleCompose
 
 
 def test_mnist():
@@ -55,13 +54,13 @@ def test_mnist():
     )
 
     device = torch.device("cpu")
-    model = ModuleCompose(
+    model = nn.Sequential(
         nn.Conv2d(1, 4, 3, 1),
-        partial(F.max_pool2d, kernel_size=2),
-        partial(torch.flatten, start_dim=1),
-        F.relu,
+        lantern.Lambda(partial(F.max_pool2d, kernel_size=2)),
+        lantern.Lambda(partial(torch.flatten, start_dim=1)),
+        lantern.Lambda(F.relu),
         nn.Linear(676, 10),
-        partial(F.log_softmax, dim=1),
+        lantern.Lambda(partial(F.log_softmax, dim=1)),
     ).to(device)
 
     optimizer = optim.Adadelta(model.parameters(), lr=5e-3)
