@@ -40,7 +40,7 @@ class Numpy(np.ndarray):
         return InheritNumpy
 
     @classmethod
-    def short(cls, dims):
+    def dims(cls, dims):
         class InheritNumpy(cls):
             @classmethod
             def validate(cls, data):
@@ -83,14 +83,31 @@ class Numpy(np.ndarray):
 
         return InheritNumpy
 
+    @classmethod
+    def dtype(cls, dtype):
+        class InheritNumpy(cls):
+            @classmethod
+            def validate(cls, data):
+                data = super().validate(data)
+                new_data = data.astype(dtype)
+                if not np.allclose(data, new_data, equal_nan=True):
+                    raise ValueError(f"Was unable to cast from {data.dtype} to {dtype}")
+                return new_data
+
+        return InheritNumpy
+
 
 def test_base_model():
     from pydantic import BaseModel
+    from pytest import raises
 
     class Test(BaseModel):
-        images: Numpy.short("nchw")
+        images: Numpy.dims("NCHW")
 
     Test(images=np.ones((10, 3, 32, 32)))
+
+    with raises(ValueError):
+        Test(images=np.ones((10, 3, 32)))
 
 
 def test_validate():
@@ -105,7 +122,7 @@ def test_conversion():
     import torch
 
     class Test(BaseModel):
-        numbers: Numpy.short("N")
+        numbers: Numpy.dims("N")
 
     Test(numbers=[1.1, 2.1, 3.1])
     Test(numbers=torch.tensor([1.1, 2.1, 3.1]))
@@ -115,7 +132,20 @@ def test_chaining():
     from pytest import raises
 
     with raises(ValueError):
-        Numpy.ndim(4).short("NCH").validate(np.ones((3, 4, 5)))
+        Numpy.ndim(4).dims("NCH").validate(np.ones((3, 4, 5)))
 
     with raises(ValueError):
-        Numpy.short("NCH").ndim(4).validate(np.ones((3, 4, 5)))
+        Numpy.dims("NCH").ndim(4).validate(np.ones((3, 4, 5)))
+
+
+def test_dtype():
+    from pydantic import BaseModel
+    from pytest import raises
+
+    class Test(BaseModel):
+        numbers: Numpy.dtype(np.uint8)
+
+    Test(numbers=[1, 2, 3])
+
+    with raises(ValueError):
+        Test(numbers=[1.5, 2.2, 3.2])

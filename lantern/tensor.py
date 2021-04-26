@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 
 
@@ -12,6 +13,8 @@ class Tensor(torch.Tensor):
             return torch.tensor(data)
         elif isinstance(data, torch.Tensor):
             return data
+        elif isinstance(data, np.ndarray):
+            return torch.from_numpy(data)
         else:
             return torch.as_tensor(data)
 
@@ -28,7 +31,7 @@ class Tensor(torch.Tensor):
         return InheritTensor
 
     @classmethod
-    def short(cls, dims):
+    def dims(cls, dims):
         class InheritTensor(cls):
             @classmethod
             def validate(cls, data):
@@ -71,12 +74,70 @@ class Tensor(torch.Tensor):
 
         return InheritTensor
 
+    @classmethod
+    def device(cls, device):
+        class InheritTensor(cls):
+            @classmethod
+            def validate(cls, data):
+                return super().validate(data).to(device)
+
+        return InheritTensor
+
+    @classmethod
+    def cpu(cls):
+        return cls.device(torch.device("cpu"))
+
+    @classmethod
+    def cuda(cls):
+        return cls.device(torch.device("cuda"))
+
+    @classmethod
+    def dtype(cls, dtype):
+        class InheritTensor(cls):
+            @classmethod
+            def validate(cls, data):
+                data = super().validate(data)
+                new_data = data.type(dtype)
+                if not torch.allclose(data.float(), new_data.float(), equal_nan=True):
+                    raise ValueError(f"Was unable to cast from {data.dtype} to {dtype}")
+                return new_data
+
+        return InheritTensor
+
+    @classmethod
+    def float(cls):
+        return cls.dtype(torch.float32)
+
+    @classmethod
+    def half(cls):
+        return cls.dtype(torch.float16)
+
+    @classmethod
+    def double(cls):
+        return cls.dtype(torch.float64)
+
+    @classmethod
+    def int(cls):
+        return cls.dtype(torch.int32)
+
+    @classmethod
+    def long(cls):
+        return cls.dtype(torch.int64)
+
+    @classmethod
+    def short(cls):
+        return cls.dtype(torch.int16)
+
+    @classmethod
+    def uint8(cls):
+        return cls.dtype(torch.uint8)
+
 
 def test_base_model():
     from pydantic import BaseModel
 
     class Test(BaseModel):
-        tensor: Tensor.short("nchw")
+        tensor: Tensor.dims("NCHW")
 
     Test(tensor=torch.ones(10, 3, 32, 32))
 
@@ -93,8 +154,8 @@ def test_conversion():
     import numpy as np
 
     class Test(BaseModel):
-        numbers: Tensor.short("N")
-        numbers2: Tensor.short("N")
+        numbers: Tensor.dims("N")
+        numbers2: Tensor.dims("N")
 
     Test(
         numbers=[1.1, 2.1, 3.1],
@@ -106,7 +167,29 @@ def test_chaining():
     from pytest import raises
 
     with raises(ValueError):
-        Tensor.ndim(4).short("NCH").validate(torch.ones(3, 4, 5))
+        Tensor.ndim(4).dims("NCH").validate(torch.ones(3, 4, 5))
 
     with raises(ValueError):
-        Tensor.short("NCH").ndim(4).validate(torch.ones(3, 4, 5))
+        Tensor.dims("NCH").ndim(4).validate(torch.ones(3, 4, 5))
+
+
+def test_dtype():
+    from pydantic import BaseModel
+    from pytest import raises
+
+    class Test(BaseModel):
+        numbers: Tensor.uint8()
+
+    Test(numbers=[1, 2, 3])
+
+    with raises(ValueError):
+        Test(numbers=[1.5, 2.2, 3.2])
+
+
+def test_device():
+    from pydantic import BaseModel
+
+    class Test(BaseModel):
+        numbers: Tensor.float().cpu()
+
+    Test(numbers=[1, 2, 3])
