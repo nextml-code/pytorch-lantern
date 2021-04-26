@@ -12,10 +12,6 @@ The main packages and tools that we build around are:
 - `pytorch-datastream <https://github.com/Aiwizo/pytorch-datastream>`_
 - `guild <https://guild.ai>`_
 
-.. autoclass:: lantern.ModuleCompose
-   :members:
-   :undoc-members:
-   :member-order: bysource
 .. autoclass:: lantern.EarlyStopping
    :members:
    :undoc-members:
