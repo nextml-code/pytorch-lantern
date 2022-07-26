@@ -36,7 +36,7 @@ class MetricTable(FunctionalBase):
                 f"{self.name}:",
                 textwrap.indent(
                     (
-                        pd.Series(self.compute()).to_string(
+                        pd.Series(self.compute(), dtype=object).to_string(
                             name=True, dtype=False, index=True
                         )
                     ),
