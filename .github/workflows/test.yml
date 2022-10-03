@@ -10,6 +10,9 @@ jobs:
         python-version: [3.7, 3.8]
 
     steps:
+      - name: Set PATH
+        run: echo "${HOME}/.local/bin" >> $GITHUB_PATH
+
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
@@ -28,19 +31,19 @@ jobs:
       - name: Install dependencies
         run: |
           curl -sSL https://install.python-poetry.org | python - --version 1.2.1
-          $HOME/.local/bin/poetry install --no-root
+          poetry install --no-root
 
       - name: Lint
         run: |
-          $HOME/.local/bin/poetry run black --check lantern
+          poetry run black --check lantern
 
       - name: Run tests
         run: |
-          $HOME/.local/bin/poetry run pytest
+          poetry run pytest
 
       - name: Build wheels
         run: |
-          $HOME/.local/bin/poetry build
+          poetry build
 
   build-docs:
     runs-on: ubuntu-latest

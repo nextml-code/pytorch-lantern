@@ -8,6 +8,9 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
+      - name: Set PATH
+        run: echo "${HOME}/.local/bin" >> $GITHUB_PATH
+
       - uses: actions/checkout@v2
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -16,20 +19,20 @@ jobs:
       - name: Install dependencies
         run: |
           curl -sSL https://install.python-poetry.org | python - --version 1.2.1
-          $HOME/.local/bin/poetry install
+          poetry install
 
       - name: Run tests
         run: |
-          $HOME/.local/bin/poetry run pytest
+          poetry run pytest
 
       - name: Build wheels
         run: |
-          $HOME/.local/bin/poetry version $(git tag --points-at HEAD)
-          $HOME/.local/bin/poetry build
+          poetry version $(git tag --points-at HEAD)
+          poetry build
 
       - name: Upload
         env:
           USERNAME: __token__
           PASSWORD: ${{ secrets.PYPI_TOKEN }}
         run: |
-          $HOME/.local/bin/poetry publish --username=$USERNAME --password=$PASSWORD
+          poetry publish --username=$USERNAME --password=$PASSWORD
