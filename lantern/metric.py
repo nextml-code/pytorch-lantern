@@ -206,7 +206,7 @@ def test_map_after_aggregate():
     assert (
         Metric([2, 3, 4])
         .aggregate(lambda xs: np.mean(xs))
-        .map(lambda x: x ** 2)
+        .map(lambda x: x**2)
         .compute()
         == 9
     )
@@ -216,9 +216,9 @@ def test_update_last():
     assert (
         Metric()
         .aggregate(lambda xs: np.mean(xs))
-        .map(lambda x: x ** 2)
+        .map(lambda x: x**2)
         .update(2)
         .update(3)
         .compute()
-        == 2.5 ** 2
+        == 2.5**2
     )
