@@ -8,7 +8,7 @@ class Tensor(torch.Tensor):
         yield cls.validate
 
     @classmethod
-    def validate(cls, data):
+    def validate(cls, data) -> torch.Tensor:
         if isinstance(data, cls):
             return torch.tensor(data)
         elif isinstance(data, torch.Tensor):
@@ -19,7 +19,7 @@ class Tensor(torch.Tensor):
             return torch.as_tensor(data)
 
     @classmethod
-    def ndim(cls, ndim):
+    def ndim(cls, ndim) -> "Tensor":
         class InheritTensor(cls):
             @classmethod
             def validate(cls, data):
@@ -31,7 +31,7 @@ class Tensor(torch.Tensor):
         return InheritTensor
 
     @classmethod
-    def dims(cls, dims):
+    def dims(cls, dims) -> "Tensor":
         class InheritTensor(cls):
             @classmethod
             def validate(cls, data):
@@ -45,7 +45,7 @@ class Tensor(torch.Tensor):
         return InheritTensor
 
     @classmethod
-    def shape(cls, *sizes):
+    def shape(cls, *sizes) -> "Tensor":
         class InheritTensor(cls):
             @classmethod
             def validate(cls, data):
@@ -58,24 +58,92 @@ class Tensor(torch.Tensor):
         return InheritTensor
 
     @classmethod
-    def between(cls, geq, leq):
+    def between(cls, ge, le) -> "Tensor":
         class InheritTensor(cls):
             @classmethod
             def validate(cls, data):
                 data = super().validate(data)
-                data_min = data.min()
-                if data_min < geq:
-                    raise ValueError(f"Expected min value {geq}, got {data_min}")
+                if data.min() < ge:
+                    raise ValueError(
+                        f"Expected greater than or equal to {ge}, got {data.min()}"
+                    )
 
-                data_max = data.min()
-                if data_max > leq:
-                    raise ValueError(f"Expected max value {leq}, got {data_max}")
+                if data.max() > le:
+                    raise ValueError(
+                        f"Expected less than or equal to {le}, got {data.max()}"
+                    )
                 return data
 
         return InheritTensor
 
     @classmethod
-    def device(cls, device):
+    def ge(cls, ge) -> "Tensor":
+        class InheritTensor(cls):
+            @classmethod
+            def validate(cls, data):
+                data = super().validate(data)
+                if data.min() < ge:
+                    raise ValueError(
+                        f"Expected greater than or equal to {ge}, got {data.min()}"
+                    )
+
+        return InheritTensor
+
+    @classmethod
+    def le(cls, le) -> "Tensor":
+        class InheritTensor(cls):
+            @classmethod
+            def validate(cls, data):
+                data = super().validate(data)
+
+                if data.max() > le:
+                    raise ValueError(
+                        f"Expected less than or equal to {le}, got {data.max()}"
+                    )
+                return data
+
+        return InheritTensor
+
+    @classmethod
+    def gt(cls, gt) -> "Tensor":
+        class InheritTensor(cls):
+            @classmethod
+            def validate(cls, data):
+                data = super().validate(data)
+
+                if data.min() <= gt:
+                    raise ValueError(f"Expected greater than {gt}, got {data.min()}")
+
+        return InheritTensor
+
+    @classmethod
+    def lt(cls, lt) -> "Tensor":
+        class InheritTensor(cls):
+            @classmethod
+            def validate(cls, data):
+                data = super().validate(data)
+
+                if data.max() >= lt:
+                    raise ValueError(f"Expected less than {lt}, got {data.max()}")
+                return data
+
+        return InheritTensor
+
+    @classmethod
+    def ne(cls, ne) -> "Tensor":
+        class InheritTensor(cls):
+            @classmethod
+            def validate(cls, data):
+                data = super().validate(data)
+
+                if (data == ne).any():
+                    raise ValueError(f"Unexpected value {ne}")
+                return data
+
+        return InheritTensor
+
+    @classmethod
+    def device(cls, device) -> "Tensor":
         class InheritTensor(cls):
             @classmethod
             def validate(cls, data):
@@ -84,15 +152,15 @@ class Tensor(torch.Tensor):
         return InheritTensor
 
     @classmethod
-    def cpu(cls):
+    def cpu(cls) -> "Tensor":
         return cls.device(torch.device("cpu"))
 
     @classmethod
-    def cuda(cls):
+    def cuda(cls) -> "Tensor":
         return cls.device(torch.device("cuda"))
 
     @classmethod
-    def dtype(cls, dtype):
+    def dtype(cls, dtype) -> "Tensor":
         class InheritTensor(cls):
             @classmethod
             def validate(cls, data):
@@ -105,39 +173,71 @@ class Tensor(torch.Tensor):
         return InheritTensor
 
     @classmethod
-    def float(cls):
+    def float(cls) -> "Tensor":
         return cls.dtype(torch.float32)
 
     @classmethod
-    def half(cls):
+    def float32(cls) -> "Tensor":
+        return cls.dtype(torch.float32)
+
+    @classmethod
+    def half(cls) -> "Tensor":
         return cls.dtype(torch.float16)
 
     @classmethod
-    def double(cls):
+    def float16(cls):
+        return cls.dtype(torch.float16)
+
+    @classmethod
+    def double(cls) -> "Tensor":
         return cls.dtype(torch.float64)
 
     @classmethod
-    def int(cls):
+    def float64(cls) -> "Tensor":
+        return cls.dtype(torch.float64)
+
+    @classmethod
+    def int(cls) -> "Tensor":
         return cls.dtype(torch.int32)
 
     @classmethod
-    def long(cls):
+    def int32(cls) -> "Tensor":
+        return cls.dtype(torch.int32)
+
+    @classmethod
+    def long(cls) -> "Tensor":
         return cls.dtype(torch.int64)
 
     @classmethod
-    def short(cls):
+    def int64(cls) -> "Tensor":
+        return cls.dtype(torch.int64)
+
+    @classmethod
+    def short(cls) -> "Tensor":
         return cls.dtype(torch.int16)
 
     @classmethod
-    def uint8(cls):
+    def int16(cls) -> "Tensor":
+        return cls.dtype(torch.int16)
+
+    @classmethod
+    def byte(cls) -> "Tensor":
         return cls.dtype(torch.uint8)
+
+    @classmethod
+    def uint8(cls) -> "Tensor":
+        return cls.dtype(torch.uint8)
+
+    @classmethod
+    def bool(cls) -> "Tensor":
+        return cls.dtype(torch.bool)
 
 
 def test_base_model():
     from pydantic import BaseModel
 
     class Test(BaseModel):
-        tensor: Tensor.dims("NCHW")
+        tensor: Tensor.dims("NCHW").float()
 
     Test(tensor=torch.ones(10, 3, 32, 32))
 
@@ -185,6 +285,14 @@ def test_dtype():
     with raises(ValueError):
         Test(numbers=[1.5, 2.2, 3.2])
 
+    class TestBool(BaseModel):
+        flags: Tensor.bool()
+
+    TestBool(flags=[True, False, True])
+
+    with raises(ValueError):
+        TestBool(numbers=[1.5, 2.2, 3.2])
+
 
 def test_device():
     from pydantic import BaseModel
@@ -206,3 +314,29 @@ def test_from_numpy():
 
     assert type(torch_numbers) == torch.Tensor
     assert np.allclose(torch_numbers.numpy(), numbers)
+
+
+def test_ge():
+    from pydantic import BaseModel
+    from pytest import raises
+
+    class Test(BaseModel):
+        numbers: Tensor.ge(0)
+
+    Test(numbers=[1.5, 2.2, 3.2])
+
+    with raises(ValueError):
+        Test(numbers=[-1.5, 2.2, 3.2])
+
+
+def test_ne():
+    from pydantic import BaseModel
+    from pytest import raises
+
+    class Test(BaseModel):
+        numbers: Tensor.ne(1)
+
+    Test(numbers=[1.5, 2.2, 3.2])
+
+    with raises(ValueError):
+        Test(numbers=[1, 2.2, 3.2])
