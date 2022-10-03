@@ -4,77 +4,71 @@ on: [push]
 
 jobs:
   test:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.7, 3.8]
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: Cache pip
-      uses: actions/cache@v2
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('poetry.lock') }}-${ GITHUB_REF }
-        restore-keys: |
-          ${{ runner.os }}-pip-
-          ${{ runner.os }}-
+      - name: Cache pip
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('poetry.lock') }}-${ GITHUB_REF }
+          restore-keys: |
+            ${{ runner.os }}-pip-
+            ${{ runner.os }}-
 
-    - name: Install dependencies
-      run: |
-        curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
-        source $HOME/.poetry/env
-        poetry install
+      - name: Install dependencies
+        run: |
+          curl -sSL https://install.python-poetry.org | python - --version 1.2.1
+          $HOME/.local/bin/poetry install --no-root
 
-    - name: Lint
-      run: |
-        source $HOME/.poetry/env
-        poetry run black --check lantern
+      - name: Lint
+        run: |
+          $HOME/.local/bin/poetry run black --check lantern
 
-    - name: Run tests
-      run: |
-        source $HOME/.poetry/env
-        poetry run pytest
+      - name: Run tests
+        run: |
+          $HOME/.local/bin/poetry run pytest
 
-    - name: Build wheels
-      run: |
-        source $HOME/.poetry/env
-        poetry build
+      - name: Build wheels
+        run: |
+          $HOME/.local/bin/poetry build
 
   build-docs:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.8]
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: Cache pip
-      uses: actions/cache@v2
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('docs/source/requirements.txt') }}-${ GITHUB_REF }
-        restore-keys: |
-          ${{ runner.os }}-pip-
-          ${{ runner.os }}-
+      - name: Cache pip
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('docs/source/requirements.txt') }}-${ GITHUB_REF }
+          restore-keys: |
+            ${{ runner.os }}-pip-
+            ${{ runner.os }}-
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r docs/source/requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r docs/source/requirements.txt
 
-    - name: Build html
-      run: |
-        (cd docs && make html)
+      - name: Build html
+        run: |
+          (cd docs && make html)
