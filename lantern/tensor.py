@@ -1,3 +1,4 @@
+from __future__ import annotations
 import numpy as np
 import torch
 
@@ -19,7 +20,7 @@ class Tensor(torch.Tensor):
             return torch.as_tensor(data)
 
     @classmethod
-    def ndim(cls, ndim) -> "Tensor":
+    def ndim(cls, ndim) -> Tensor:
         class InheritTensor(cls):
             @classmethod
             def validate(cls, data):
@@ -31,7 +32,7 @@ class Tensor(torch.Tensor):
         return InheritTensor
 
     @classmethod
-    def dims(cls, dims) -> "Tensor":
+    def dims(cls, dims) -> Tensor:
         class InheritTensor(cls):
             @classmethod
             def validate(cls, data):
@@ -45,7 +46,7 @@ class Tensor(torch.Tensor):
         return InheritTensor
 
     @classmethod
-    def shape(cls, *sizes) -> "Tensor":
+    def shape(cls, *sizes) -> Tensor:
         class InheritTensor(cls):
             @classmethod
             def validate(cls, data):
@@ -58,7 +59,7 @@ class Tensor(torch.Tensor):
         return InheritTensor
 
     @classmethod
-    def between(cls, ge, le) -> "Tensor":
+    def between(cls, ge, le) -> Tensor:
         class InheritTensor(cls):
             @classmethod
             def validate(cls, data):
@@ -77,7 +78,7 @@ class Tensor(torch.Tensor):
         return InheritTensor
 
     @classmethod
-    def ge(cls, ge) -> "Tensor":
+    def ge(cls, ge) -> Tensor:
         class InheritTensor(cls):
             @classmethod
             def validate(cls, data):
@@ -90,7 +91,7 @@ class Tensor(torch.Tensor):
         return InheritTensor
 
     @classmethod
-    def le(cls, le) -> "Tensor":
+    def le(cls, le) -> Tensor:
         class InheritTensor(cls):
             @classmethod
             def validate(cls, data):
@@ -105,7 +106,7 @@ class Tensor(torch.Tensor):
         return InheritTensor
 
     @classmethod
-    def gt(cls, gt) -> "Tensor":
+    def gt(cls, gt) -> Tensor:
         class InheritTensor(cls):
             @classmethod
             def validate(cls, data):
@@ -117,7 +118,7 @@ class Tensor(torch.Tensor):
         return InheritTensor
 
     @classmethod
-    def lt(cls, lt) -> "Tensor":
+    def lt(cls, lt) -> Tensor:
         class InheritTensor(cls):
             @classmethod
             def validate(cls, data):
@@ -130,7 +131,7 @@ class Tensor(torch.Tensor):
         return InheritTensor
 
     @classmethod
-    def ne(cls, ne) -> "Tensor":
+    def ne(cls, ne) -> Tensor:
         class InheritTensor(cls):
             @classmethod
             def validate(cls, data):
@@ -143,7 +144,7 @@ class Tensor(torch.Tensor):
         return InheritTensor
 
     @classmethod
-    def device(cls, device) -> "Tensor":
+    def device(cls, device) -> Tensor:
         class InheritTensor(cls):
             @classmethod
             def validate(cls, data):
@@ -152,15 +153,15 @@ class Tensor(torch.Tensor):
         return InheritTensor
 
     @classmethod
-    def cpu(cls) -> "Tensor":
+    def cpu(cls) -> Tensor:
         return cls.device(torch.device("cpu"))
 
     @classmethod
-    def cuda(cls) -> "Tensor":
+    def cuda(cls) -> Tensor:
         return cls.device(torch.device("cuda"))
 
     @classmethod
-    def dtype(cls, dtype) -> "Tensor":
+    def dtype(cls, dtype) -> Tensor:
         class InheritTensor(cls):
             @classmethod
             def validate(cls, data):
@@ -173,15 +174,15 @@ class Tensor(torch.Tensor):
         return InheritTensor
 
     @classmethod
-    def float(cls) -> "Tensor":
+    def float(cls) -> Tensor:
         return cls.dtype(torch.float32)
 
     @classmethod
-    def float32(cls) -> "Tensor":
+    def float32(cls) -> Tensor:
         return cls.dtype(torch.float32)
 
     @classmethod
-    def half(cls) -> "Tensor":
+    def half(cls) -> Tensor:
         return cls.dtype(torch.float16)
 
     @classmethod
@@ -189,47 +190,47 @@ class Tensor(torch.Tensor):
         return cls.dtype(torch.float16)
 
     @classmethod
-    def double(cls) -> "Tensor":
+    def double(cls) -> Tensor:
         return cls.dtype(torch.float64)
 
     @classmethod
-    def float64(cls) -> "Tensor":
+    def float64(cls) -> Tensor:
         return cls.dtype(torch.float64)
 
     @classmethod
-    def int(cls) -> "Tensor":
+    def int(cls) -> Tensor:
         return cls.dtype(torch.int32)
 
     @classmethod
-    def int32(cls) -> "Tensor":
+    def int32(cls) -> Tensor:
         return cls.dtype(torch.int32)
 
     @classmethod
-    def long(cls) -> "Tensor":
+    def long(cls) -> Tensor:
         return cls.dtype(torch.int64)
 
     @classmethod
-    def int64(cls) -> "Tensor":
+    def int64(cls) -> Tensor:
         return cls.dtype(torch.int64)
 
     @classmethod
-    def short(cls) -> "Tensor":
+    def short(cls) -> Tensor:
         return cls.dtype(torch.int16)
 
     @classmethod
-    def int16(cls) -> "Tensor":
+    def int16(cls) -> Tensor:
         return cls.dtype(torch.int16)
 
     @classmethod
-    def byte(cls) -> "Tensor":
+    def byte(cls) -> Tensor:
         return cls.dtype(torch.uint8)
 
     @classmethod
-    def uint8(cls) -> "Tensor":
+    def uint8(cls) -> Tensor:
         return cls.dtype(torch.uint8)
 
     @classmethod
-    def bool(cls) -> "Tensor":
+    def bool(cls) -> Tensor:
         return cls.dtype(torch.bool)
 
 

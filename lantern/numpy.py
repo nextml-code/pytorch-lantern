@@ -1,3 +1,4 @@
+from __future__ import annotations
 import numpy as np
 import torch
 
@@ -19,7 +20,7 @@ class Numpy(np.ndarray):
             return np.array(data)
 
     @classmethod
-    def ndim(cls, ndim) -> "Numpy":
+    def ndim(cls, ndim) -> Numpy:
         class InheritNumpy(cls):
             @classmethod
             def validate(cls, data):
@@ -31,7 +32,7 @@ class Numpy(np.ndarray):
         return InheritNumpy
 
     @classmethod
-    def dims(cls, dims) -> "Numpy":
+    def dims(cls, dims) -> Numpy:
         class InheritNumpy(cls):
             @classmethod
             def validate(cls, data):
@@ -45,7 +46,7 @@ class Numpy(np.ndarray):
         return InheritNumpy
 
     @classmethod
-    def shape(cls, *sizes) -> "Numpy":
+    def shape(cls, *sizes) -> Numpy:
         class InheritNumpy(cls):
             @classmethod
             def validate(cls, data):
@@ -58,7 +59,7 @@ class Numpy(np.ndarray):
         return InheritNumpy
 
     @classmethod
-    def between(cls, ge, le) -> "Numpy":
+    def between(cls, ge, le) -> Numpy:
         class InheritNumpy(cls):
             @classmethod
             def validate(cls, data):
@@ -78,7 +79,7 @@ class Numpy(np.ndarray):
         return InheritNumpy
 
     @classmethod
-    def ge(cls, ge) -> "Numpy":
+    def ge(cls, ge) -> Numpy:
         class InheritTensor(cls):
             @classmethod
             def validate(cls, data):
@@ -91,7 +92,7 @@ class Numpy(np.ndarray):
         return InheritTensor
 
     @classmethod
-    def le(cls, le) -> "Numpy":
+    def le(cls, le) -> Numpy:
         class InheritTensor(cls):
             @classmethod
             def validate(cls, data):
@@ -106,7 +107,7 @@ class Numpy(np.ndarray):
         return InheritTensor
 
     @classmethod
-    def gt(cls, gt) -> "Numpy":
+    def gt(cls, gt) -> Numpy:
         class InheritTensor(cls):
             @classmethod
             def validate(cls, data):
@@ -118,7 +119,7 @@ class Numpy(np.ndarray):
         return InheritTensor
 
     @classmethod
-    def lt(cls, lt) -> "Numpy":
+    def lt(cls, lt) -> Numpy:
         class InheritTensor(cls):
             @classmethod
             def validate(cls, data):
@@ -131,7 +132,7 @@ class Numpy(np.ndarray):
         return InheritTensor
 
     @classmethod
-    def ne(cls, ne) -> "Numpy":
+    def ne(cls, ne) -> Numpy:
         class InheritTensor(cls):
             @classmethod
             def validate(cls, data):
@@ -144,7 +145,7 @@ class Numpy(np.ndarray):
         return InheritTensor
 
     @classmethod
-    def dtype(cls, dtype) -> "Numpy":
+    def dtype(cls, dtype) -> Numpy:
         class InheritNumpy(cls):
             @classmethod
             def validate(cls, data):
@@ -157,15 +158,15 @@ class Numpy(np.ndarray):
         return InheritNumpy
 
     @classmethod
-    def float(cls) -> "Numpy":
+    def float(cls) -> Numpy:
         return cls.dtype(np.float32)
 
     @classmethod
-    def float32(cls) -> "Numpy":
+    def float32(cls) -> Numpy:
         return cls.dtype(np.float32)
 
     @classmethod
-    def half(cls) -> "Numpy":
+    def half(cls) -> Numpy:
         return cls.dtype(np.float16)
 
     @classmethod
@@ -173,47 +174,47 @@ class Numpy(np.ndarray):
         return cls.dtype(np.float16)
 
     @classmethod
-    def double(cls) -> "Numpy":
+    def double(cls) -> Numpy:
         return cls.dtype(np.float64)
 
     @classmethod
-    def float64(cls) -> "Numpy":
+    def float64(cls) -> Numpy:
         return cls.dtype(np.float64)
 
     @classmethod
-    def int(cls) -> "Numpy":
+    def int(cls) -> Numpy:
         return cls.dtype(np.int32)
 
     @classmethod
-    def int32(cls) -> "Numpy":
+    def int32(cls) -> Numpy:
         return cls.dtype(np.int32)
 
     @classmethod
-    def long(cls) -> "Numpy":
+    def long(cls) -> Numpy:
         return cls.dtype(np.int64)
 
     @classmethod
-    def int64(cls) -> "Numpy":
+    def int64(cls) -> Numpy:
         return cls.dtype(np.int64)
 
     @classmethod
-    def short(cls) -> "Numpy":
+    def short(cls) -> Numpy:
         return cls.dtype(np.int16)
 
     @classmethod
-    def int16(cls) -> "Numpy":
+    def int16(cls) -> Numpy:
         return cls.dtype(np.int16)
 
     @classmethod
-    def byte(cls) -> "Numpy":
+    def byte(cls) -> Numpy:
         return cls.dtype(np.uint8)
 
     @classmethod
-    def uint8(cls) -> "Numpy":
+    def uint8(cls) -> Numpy:
         return cls.dtype(np.uint8)
 
     @classmethod
-    def bool(cls) -> "Numpy":
+    def bool(cls) -> Numpy:
         return cls.dtype(bool)
 
 
