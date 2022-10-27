@@ -66,5 +66,8 @@ Install lantern from pypi using pip or poetry:
 
 .. code-block::
 
-    poetry add pytorch-lantern
-    # pip install pytorch-lantern
+    poetry add pytorch-lantern[training]
+
+.. code-block::
+
+    pip install pytorch-lantern[training]
