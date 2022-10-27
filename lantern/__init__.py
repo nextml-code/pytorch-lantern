@@ -14,7 +14,11 @@ from lantern.set_learning_rate import set_learning_rate
 from lantern.set_seeds import set_seeds
 from lantern.worker_init_fn import worker_init_fn
 from lantern.progress_bar import ProgressBar
-from lantern.early_stopping import EarlyStopping
+
+try:
+    from lantern.early_stopping import EarlyStopping
+except ImportError:
+    pass
 from lantern.git_info import git_info
 
 from pkg_resources import get_distribution, DistributionNotFound
