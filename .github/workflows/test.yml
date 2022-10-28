@@ -28,18 +28,27 @@ jobs:
             ${{ runner.os }}-pip-
             ${{ runner.os }}-
 
-      - name: Install dependencies
+      - name: Install inference dependencies
+        run: |
+          curl -sSL https://install.python-poetry.org | python - --version 1.2.2
+          poetry install --no-root --without dev
+
+      - name: Run inference tests
+        run: |
+          poetry run pytest -s lantern --ignore lantern/early_stopping.py
+
+      - name: Install training dependencies
         run: |
           curl -sSL https://install.python-poetry.org | python - --version 1.2.2
           poetry install --no-root -E training
 
+      - name: Run all tests
+        run: |
+          poetry run pytest -s
+
       - name: Lint
         run: |
           poetry run black --check lantern
-
-      - name: Run tests
-        run: |
-          poetry run pytest -s
 
       - name: Build wheels
         run: |
