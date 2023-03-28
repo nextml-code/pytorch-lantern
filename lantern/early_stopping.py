@@ -15,7 +15,7 @@ class EarlyStopping(FunctionalBase):
         arbitrary_types_allowed = True
 
     def score(self, value):
-        if self.best_score is None or value >= self.best_score:
+        if self.best_score is None or value > self.best_score:
             return self.replace(
                 best_score=value,
                 scores_since_improvement=0,
