@@ -1,9 +1,20 @@
 from __future__ import annotations
+
 import numpy as np
 import torch
+import torch._C
 
 
-class Tensor(torch.Tensor):
+class MetaTensor(torch._C._TensorMeta):
+    def __getitem__(self, validate: Tensor) -> Tensor:
+        return validate
+
+
+class Tensor(torch.Tensor, metaclass=MetaTensor):
+    @classmethod
+    def Validate(cls) -> Tensor:
+        return cls
+
     @classmethod
     def __get_validators__(cls):
         yield cls.validate
@@ -234,6 +245,9 @@ class Tensor(torch.Tensor):
         return cls.dtype(torch.bool)
 
 
+Validate = Tensor
+
+
 def test_base_model():
     from pydantic import BaseModel
 
@@ -251,8 +265,8 @@ def test_validate():
 
 
 def test_conversion():
-    from pydantic import BaseModel
     import numpy as np
+    from pydantic import BaseModel
 
     class Test(BaseModel):
         numbers: Tensor.dims("N")
@@ -336,6 +350,19 @@ def test_ne():
 
     class Test(BaseModel):
         numbers: Tensor.ne(1)
+
+    Test(numbers=[1.5, 2.2, 3.2])
+
+    with raises(ValueError):
+        Test(numbers=[1, 2.2, 3.2])
+
+
+def test_alternative_syntax():
+    from pydantic import BaseModel
+    from pytest import raises
+
+    class Test(BaseModel):
+        numbers: Tensor[Validate.ne(1)]
 
     Test(numbers=[1.5, 2.2, 3.2])
 
