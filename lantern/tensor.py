@@ -177,10 +177,17 @@ class Tensor(torch.Tensor, metaclass=MetaTensor):
             @classmethod
             def validate(cls, data):
                 data = super().validate(data)
-                new_data = data.type(dtype)
-                if not torch.allclose(data.float(), new_data.float(), equal_nan=True):
-                    raise ValueError(f"Was unable to cast from {data.dtype} to {dtype}")
-                return new_data
+                if data.dtype == dtype:
+                    return data
+                else:
+                    new_data = data.type(dtype)
+                    if not torch.allclose(
+                        data.float(), new_data.float(), equal_nan=True
+                    ):
+                        raise ValueError(
+                            f"Was unable to cast from {data.dtype} to {dtype}"
+                        )
+                    return new_data
 
         return InheritTensor
 

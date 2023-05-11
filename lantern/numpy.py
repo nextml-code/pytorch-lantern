@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import numpy as np
 import torch
 
@@ -150,10 +151,15 @@ class Numpy(np.ndarray):
             @classmethod
             def validate(cls, data):
                 data = super().validate(data)
-                new_data = data.astype(dtype)
-                if not np.allclose(data, new_data, equal_nan=True):
-                    raise ValueError(f"Was unable to cast from {data.dtype} to {dtype}")
-                return new_data
+                if data.dtype == dtype:
+                    return data
+                else:
+                    new_data = data.astype(dtype)
+                    if not np.allclose(data, new_data, equal_nan=True):
+                        raise ValueError(
+                            f"Was unable to cast from {data.dtype} to {dtype}"
+                        )
+                    return new_data
 
         return InheritNumpy
 
@@ -239,8 +245,8 @@ def test_validate():
 
 
 def test_conversion():
-    from pydantic import BaseModel
     import torch
+    from pydantic import BaseModel
 
     class Test(BaseModel):
         numbers: Numpy.dims("N")
