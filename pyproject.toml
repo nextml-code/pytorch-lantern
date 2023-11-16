@@ -36,7 +36,7 @@ numpy = "^1.19.4"
 torch = ">=1.6.0"
 tqdm = "*"
 tensorboard = { version = "^2.2.0", optional = true }
-pydantic = "^1.0.0"
+pydantic = "*"
 pandas = "^1.0.0"
 
 [tool.poetry.extras]
