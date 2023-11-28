@@ -1,34 +1,72 @@
 from __future__ import annotations
 
+from typing import Any, List
+
 import numpy as np
 import torch
-import torch._C
+from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
+from pydantic.json_schema import JsonSchemaValue
+from pydantic_core import core_schema
+from typing_extensions import Annotated
 
 
-class MetaTensor(torch._C._TensorMeta):
-    def __getitem__(self, validate: Tensor) -> Tensor:
-        return validate
+def validate_from_list(values: List) -> torch.Tensor:
+    return torch.tensor(values)
 
 
-class Tensor(torch.Tensor, metaclass=MetaTensor):
+def validate_from_numpy(array: np.ndarray) -> torch.Tensor:
+    return torch.from_numpy(array)
+
+
+class Tensor:
     @classmethod
-    def Validate(cls) -> Tensor:
-        return cls
+    def __get_pydantic_core_schema__(
+        cls,
+        _source_type: Any,
+        _handler: GetCoreSchemaHandler,
+    ) -> core_schema.CoreSchema:
+        from_list_schema = core_schema.chain_schema(
+            [
+                core_schema.list_schema(),
+                core_schema.no_info_plain_validator_function(validate_from_list),
+            ]
+        )
+
+        from_numpy_schema = core_schema.chain_schema(
+            [
+                core_schema.is_instance_schema(np.ndarray),
+                core_schema.no_info_plain_validator_function(validate_from_numpy),
+            ]
+        )
+
+        return core_schema.json_or_python_schema(
+            json_schema=from_list_schema,
+            python_schema=core_schema.chain_schema(
+                [
+                    core_schema.union_schema(
+                        [
+                            core_schema.is_instance_schema(torch.Tensor),
+                            from_list_schema,
+                            from_numpy_schema,
+                        ]
+                    ),
+                    core_schema.no_info_plain_validator_function(cls.validate),
+                ]
+            ),
+            serialization=core_schema.plain_serializer_function_ser_schema(
+                lambda instance: instance.tolist()
+            ),
+        )
 
     @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
+    def __get_pydantic_json_schema__(
+        cls, _core_schema: core_schema.CoreSchema, handler: GetJsonSchemaHandler
+    ) -> JsonSchemaValue:
+        return handler(core_schema.list_schema())
 
     @classmethod
-    def validate(cls, data, config=None, field=None) -> torch.Tensor:
-        if isinstance(data, cls):
-            return torch.tensor(data)
-        elif isinstance(data, torch.Tensor):
-            return data
-        elif isinstance(data, np.ndarray):
-            return torch.from_numpy(data)
-        else:
-            return torch.as_tensor(data)
+    def validate(cls, data, config=None, field=None):
+        return data
 
     @classmethod
     def ndim(cls, ndim) -> Tensor:
@@ -252,14 +290,11 @@ class Tensor(torch.Tensor, metaclass=MetaTensor):
         return cls.dtype(torch.bool)
 
 
-Validate = Tensor
-
-
 def test_base_model():
     from pydantic import BaseModel
 
     class Test(BaseModel):
-        tensor: Tensor.dims("NCHW").float()
+        tensor: Annotated[torch.Tensor, Tensor.dims("NCHW").float()]
 
     Test(tensor=torch.ones(10, 3, 32, 32))
 
@@ -276,8 +311,8 @@ def test_conversion():
     from pydantic import BaseModel
 
     class Test(BaseModel):
-        numbers: Tensor.dims("N")
-        numbers2: Tensor.dims("N")
+        numbers: Annotated[torch.Tensor, Tensor.dims("N")]
+        numbers2: Annotated[torch.Tensor, Tensor.dims("N")]
 
     Test(
         numbers=[1.1, 2.1, 3.1],
@@ -300,7 +335,7 @@ def test_dtype():
     from pytest import raises
 
     class Test(BaseModel):
-        numbers: Tensor.uint8()
+        numbers: Annotated[torch.Tensor, Tensor.uint8()]
 
     Test(numbers=[1, 2, 3])
 
@@ -308,7 +343,7 @@ def test_dtype():
         Test(numbers=[1.5, 2.2, 3.2])
 
     class TestBool(BaseModel):
-        flags: Tensor.bool()
+        flags: Annotated[torch.Tensor, Tensor.bool()]
 
     TestBool(flags=[True, False, True])
 
@@ -320,7 +355,7 @@ def test_device():
     from pydantic import BaseModel
 
     class Test(BaseModel):
-        numbers: Tensor.float().cpu()
+        numbers: Annotated[torch.Tensor, Tensor.float().cpu()]
 
     Test(numbers=[1, 2, 3])
 
@@ -329,7 +364,7 @@ def test_from_numpy():
     from pydantic import BaseModel
 
     class Test(BaseModel):
-        numbers: Tensor
+        numbers: Annotated[torch.Tensor, Tensor]
 
     numbers = np.array([1, 2, 3])
     torch_numbers = Test(numbers=numbers).numbers
@@ -343,7 +378,7 @@ def test_ge():
     from pytest import raises
 
     class Test(BaseModel):
-        numbers: Tensor.ge(0)
+        numbers: Annotated[torch.Tensor, Tensor.ge(0)]
 
     Test(numbers=[1.5, 2.2, 3.2])
 
@@ -356,7 +391,7 @@ def test_ne():
     from pytest import raises
 
     class Test(BaseModel):
-        numbers: Tensor.ne(1)
+        numbers: Annotated[torch.Tensor, Tensor.ne(1)]
 
     Test(numbers=[1.5, 2.2, 3.2])
 
@@ -364,14 +399,14 @@ def test_ne():
         Test(numbers=[1, 2.2, 3.2])
 
 
-def test_alternative_syntax():
+def test_shorthand_syntax():
     from pydantic import BaseModel
     from pytest import raises
 
     class Test(BaseModel):
-        numbers: Tensor[Validate.ne(1)]
+        numbers: Tensor.dims("N").float()
 
-    Test(numbers=[1.5, 2.2, 3.2])
+    Test(numbers=[1.5, 2.2, 3.2]).numbers
 
     with raises(ValueError):
-        Test(numbers=[1, 2.2, 3.2])
+        Test(numbers=[[1, 2.2, 3.2], [1, 2, 3]])

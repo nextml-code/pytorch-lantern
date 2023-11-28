@@ -1,24 +1,72 @@
 from __future__ import annotations
 
+from typing import Any, List
+
 import numpy as np
 import torch
+from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
+from pydantic.json_schema import JsonSchemaValue
+from pydantic_core import core_schema
+from typing_extensions import Annotated
 
 
-class Numpy(np.ndarray):
+def validate_from_list(values: List) -> np.ndarray:
+    return np.array(values)
+
+
+def validate_from_torch(tensor: torch.Tensor) -> np.ndarray:
+    return tensor.numpy()
+
+
+class Numpy:
     @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
+    def __get_pydantic_core_schema__(
+        cls,
+        _source_type: Any,
+        _handler: GetCoreSchemaHandler,
+    ) -> core_schema.CoreSchema:
+        from_list_schema = core_schema.chain_schema(
+            [
+                core_schema.list_schema(),
+                core_schema.no_info_plain_validator_function(validate_from_list),
+            ]
+        )
+
+        from_torch_schema = core_schema.chain_schema(
+            [
+                core_schema.is_instance_schema(torch.Tensor),
+                core_schema.no_info_plain_validator_function(validate_from_torch),
+            ]
+        )
+
+        return core_schema.json_or_python_schema(
+            json_schema=from_list_schema,
+            python_schema=core_schema.chain_schema(
+                [
+                    core_schema.union_schema(
+                        [
+                            core_schema.is_instance_schema(np.ndarray),
+                            from_list_schema,
+                            from_torch_schema,
+                        ]
+                    ),
+                    core_schema.no_info_plain_validator_function(cls.validate),
+                ]
+            ),
+            serialization=core_schema.plain_serializer_function_ser_schema(
+                lambda instance: instance.tolist()
+            ),
+        )
 
     @classmethod
-    def validate(cls, data, config=None, field=None) -> np.ndarray:
-        if isinstance(data, cls):
-            return data.view(np.ndarray)
-        elif isinstance(data, np.ndarray):
-            return data
-        elif isinstance(data, torch.Tensor):
-            return data.numpy()
-        else:
-            return np.array(data)
+    def __get_pydantic_json_schema__(
+        cls, _core_schema: core_schema.CoreSchema, handler: GetJsonSchemaHandler
+    ) -> JsonSchemaValue:
+        return handler(core_schema.list_schema())
+
+    @classmethod
+    def validate(cls, data, config=None, field=None):
+        return data
 
     @classmethod
     def ndim(cls, ndim) -> Numpy:
@@ -229,9 +277,7 @@ def test_base_model():
     from pytest import raises
 
     class Test(BaseModel):
-        images: Numpy.dims("NCHW")
-
-    Test(images=np.ones((10, 3, 32, 32)))
+        images: Annotated[np.ndarray, Numpy.dims("NCHW")]
 
     with raises(ValueError):
         Test(images=np.ones((10, 3, 32)))
@@ -249,7 +295,7 @@ def test_conversion():
     from pydantic import BaseModel
 
     class Test(BaseModel):
-        numbers: Numpy.dims("N")
+        numbers: Annotated[np.ndarray, Numpy.dims("N")]
 
     Test(numbers=[1.1, 2.1, 3.1])
     Test(numbers=torch.tensor([1.1, 2.1, 3.1]))
@@ -270,7 +316,7 @@ def test_dtype():
     from pytest import raises
 
     class Test(BaseModel):
-        numbers: Numpy.uint8()
+        numbers: Annotated[np.ndarray, Numpy.uint8()]
 
     Test(numbers=[1, 2, 3])
 
@@ -278,7 +324,7 @@ def test_dtype():
         Test(numbers=[1.5, 2.2, 3.2])
 
     class TestBool(BaseModel):
-        flags: Numpy.bool()
+        flags: Annotated[np.ndarray, Numpy.bool()]
 
     TestBool(flags=[True, False, True])
 
@@ -291,7 +337,7 @@ def test_from_torch():
     from pydantic import BaseModel
 
     class Test(BaseModel):
-        numbers: Numpy
+        numbers: Annotated[np.ndarray, Numpy]
 
     numbers = torch.tensor([1, 2, 3])
     numpy_numbers = Test(numbers=numbers).numbers
@@ -305,7 +351,7 @@ def test_between():
     from pytest import raises
 
     class Test(BaseModel):
-        numbers: Numpy.between(1, 3.5)
+        numbers: Annotated[np.ndarray, Numpy.between(1, 3.5)]
 
     Test(numbers=[1.5, 2.2, 3.2])
 
@@ -318,7 +364,7 @@ def test_gt():
     from pytest import raises
 
     class Test(BaseModel):
-        numbers: Numpy.gt(1)
+        numbers: Annotated[np.ndarray, Numpy.gt(1)]
 
     Test(numbers=[1.5, 2.2, 3.2])
 
