@@ -20,7 +20,7 @@ class Tensor(torch.Tensor, metaclass=MetaTensor):
         yield cls.validate
 
     @classmethod
-    def validate(cls, data) -> torch.Tensor:
+    def validate(cls, data, config=None, field=None) -> torch.Tensor:
         if isinstance(data, cls):
             return torch.tensor(data)
         elif isinstance(data, torch.Tensor):
