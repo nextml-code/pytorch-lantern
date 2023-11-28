@@ -10,7 +10,7 @@ class Numpy(np.ndarray):
         yield cls.validate
 
     @classmethod
-    def validate(cls, data) -> np.ndarray:
+    def validate(cls, data, config=None, field=None) -> np.ndarray:
         if isinstance(data, cls):
             return data.view(np.ndarray)
         elif isinstance(data, np.ndarray):
