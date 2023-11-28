@@ -24,7 +24,7 @@ class Numpy(np.ndarray):
     def ndim(cls, ndim) -> Numpy:
         class InheritNumpy(cls):
             @classmethod
-            def validate(cls, data):
+            def validate(cls, data, config=None, field=None):
                 data = super().validate(data)
                 if data.ndim != ndim:
                     raise ValueError(f"Expected {ndim} dims, got {data.ndim}")
@@ -36,7 +36,7 @@ class Numpy(np.ndarray):
     def dims(cls, dims) -> Numpy:
         class InheritNumpy(cls):
             @classmethod
-            def validate(cls, data):
+            def validate(cls, data, config=None, field=None):
                 data = super().validate(data)
                 if data.ndim != len(dims):
                     raise ValueError(
@@ -50,7 +50,7 @@ class Numpy(np.ndarray):
     def shape(cls, *sizes) -> Numpy:
         class InheritNumpy(cls):
             @classmethod
-            def validate(cls, data):
+            def validate(cls, data, config=None, field=None):
                 data = super().validate(data)
                 for data_size, size in zip(data.shape, sizes):
                     if size != -1 and data_size != size:
@@ -63,7 +63,7 @@ class Numpy(np.ndarray):
     def between(cls, ge, le) -> Numpy:
         class InheritNumpy(cls):
             @classmethod
-            def validate(cls, data):
+            def validate(cls, data, config=None, field=None):
                 data = super().validate(data)
 
                 if data.min() < ge:
@@ -83,7 +83,7 @@ class Numpy(np.ndarray):
     def ge(cls, ge) -> Numpy:
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data):
+            def validate(cls, data, config=None, field=None):
                 data = super().validate(data)
                 if data.min() < ge:
                     raise ValueError(
@@ -96,7 +96,7 @@ class Numpy(np.ndarray):
     def le(cls, le) -> Numpy:
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data):
+            def validate(cls, data, config=None, field=None):
                 data = super().validate(data)
 
                 if data.max() > le:
@@ -111,7 +111,7 @@ class Numpy(np.ndarray):
     def gt(cls, gt) -> Numpy:
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data):
+            def validate(cls, data, config=None, field=None):
                 data = super().validate(data)
 
                 if data.min() <= gt:
@@ -123,7 +123,7 @@ class Numpy(np.ndarray):
     def lt(cls, lt) -> Numpy:
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data):
+            def validate(cls, data, config=None, field=None):
                 data = super().validate(data)
 
                 if data.max() >= lt:
@@ -136,7 +136,7 @@ class Numpy(np.ndarray):
     def ne(cls, ne) -> Numpy:
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data):
+            def validate(cls, data, config=None, field=None):
                 data = super().validate(data)
 
                 if (data == ne).any():
@@ -149,7 +149,7 @@ class Numpy(np.ndarray):
     def dtype(cls, dtype) -> Numpy:
         class InheritNumpy(cls):
             @classmethod
-            def validate(cls, data):
+            def validate(cls, data, config=None, field=None):
                 data = super().validate(data)
                 if data.dtype == dtype:
                     return data

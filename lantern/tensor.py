@@ -34,7 +34,7 @@ class Tensor(torch.Tensor, metaclass=MetaTensor):
     def ndim(cls, ndim) -> Tensor:
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data):
+            def validate(cls, data, config=None, field=None):
                 data = super().validate(data)
                 if data.ndim != ndim:
                     raise ValueError(f"Expected {ndim} dims, got {data.ndim}")
@@ -46,7 +46,7 @@ class Tensor(torch.Tensor, metaclass=MetaTensor):
     def dims(cls, dims) -> Tensor:
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data):
+            def validate(cls, data, config=None, field=None):
                 data = super().validate(data)
                 if data.ndim != len(dims):
                     raise ValueError(
@@ -60,7 +60,7 @@ class Tensor(torch.Tensor, metaclass=MetaTensor):
     def shape(cls, *sizes) -> Tensor:
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data):
+            def validate(cls, data, config=None, field=None):
                 data = super().validate(data)
                 for data_size, size in zip(data.shape, sizes):
                     if size != -1 and data_size != size:
@@ -73,7 +73,7 @@ class Tensor(torch.Tensor, metaclass=MetaTensor):
     def between(cls, ge, le) -> Tensor:
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data):
+            def validate(cls, data, config=None, field=None):
                 data = super().validate(data)
                 if data.min() < ge:
                     raise ValueError(
@@ -92,7 +92,7 @@ class Tensor(torch.Tensor, metaclass=MetaTensor):
     def ge(cls, ge) -> Tensor:
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data):
+            def validate(cls, data, config=None, field=None):
                 data = super().validate(data)
                 if data.min() < ge:
                     raise ValueError(
@@ -105,7 +105,7 @@ class Tensor(torch.Tensor, metaclass=MetaTensor):
     def le(cls, le) -> Tensor:
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data):
+            def validate(cls, data, config=None, field=None):
                 data = super().validate(data)
 
                 if data.max() > le:
@@ -120,7 +120,7 @@ class Tensor(torch.Tensor, metaclass=MetaTensor):
     def gt(cls, gt) -> Tensor:
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data):
+            def validate(cls, data, config=None, field=None):
                 data = super().validate(data)
 
                 if data.min() <= gt:
@@ -132,7 +132,7 @@ class Tensor(torch.Tensor, metaclass=MetaTensor):
     def lt(cls, lt) -> Tensor:
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data):
+            def validate(cls, data, config=None, field=None):
                 data = super().validate(data)
 
                 if data.max() >= lt:
@@ -145,7 +145,7 @@ class Tensor(torch.Tensor, metaclass=MetaTensor):
     def ne(cls, ne) -> Tensor:
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data):
+            def validate(cls, data, config=None, field=None):
                 data = super().validate(data)
 
                 if (data == ne).any():
@@ -158,7 +158,7 @@ class Tensor(torch.Tensor, metaclass=MetaTensor):
     def device(cls, device) -> Tensor:
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data):
+            def validate(cls, data, config=None, field=None):
                 return super().validate(data).to(device)
 
         return InheritTensor
@@ -175,7 +175,7 @@ class Tensor(torch.Tensor, metaclass=MetaTensor):
     def dtype(cls, dtype) -> Tensor:
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data):
+            def validate(cls, data, config=None, field=None):
                 data = super().validate(data)
                 if data.dtype == dtype:
                     return data
