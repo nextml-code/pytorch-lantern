@@ -1,18 +1,16 @@
 from typing import Optional
+
 import torch.utils.tensorboard
 
 from lantern import FunctionalBase
 
 
-class EarlyStopping(FunctionalBase):
+class EarlyStopping(FunctionalBase, arbitrary_types_allowed=True):
     """Keeps track of the best score and how long ago it was calculated."""
 
     tensorboard_logger: torch.utils.tensorboard.SummaryWriter
     best_score: Optional[float] = None
     scores_since_improvement: int = -1
-
-    class Config:
-        arbitrary_types_allowed = True
 
     def score(self, value):
         if self.best_score is None or value > self.best_score:
