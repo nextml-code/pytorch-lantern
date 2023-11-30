@@ -1,16 +1,14 @@
-import numpy as np
 import functools
+from typing import Any, Callable, List, Optional, Union
+
+import numpy as np
+
 from lantern import FunctionalBase, star
-from typing import Callable, Any, Optional, List, Union
 
 
 class MapMetric(FunctionalBase):
     map_fn: Optional[Callable[..., Any]]
     state: List[Any]
-
-    class Config:
-        arbitrary_types_allowed = True
-        allow_mutation = True
 
     def __init__(self, state=list(), map_fn=None):
         super().__init__(
@@ -101,13 +99,9 @@ class MapMetric(FunctionalBase):
 Metric = MapMetric
 
 
-class ReduceMetric(FunctionalBase):
+class ReduceMetric(FunctionalBase, arbitrary_types_allowed=True):
     reduce_fn: Callable[..., Any]
     state: Any
-
-    class Config:
-        arbitrary_types_allowed = True
-        allow_mutation = True
 
     def update_(self, *args, **kwargs):
         self.state = self.reduce_fn(self.state, *args, **kwargs)
@@ -140,10 +134,6 @@ class ReduceMetric(FunctionalBase):
 class AggregateMetric(FunctionalBase):
     metric: Union[MapMetric, ReduceMetric]
     aggregate_fn: Callable
-
-    class Config:
-        arbitrary_types_allowed = True
-        allow_mutation = True
 
     def map(self, fn):
         return self.replace(aggregate_fn=lambda state: fn(self.aggregate_fn(state)))

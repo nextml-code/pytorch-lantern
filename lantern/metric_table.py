@@ -1,18 +1,14 @@
 import textwrap
+from typing import Any, Dict, Union
+
 import pandas as pd
+
 from lantern import FunctionalBase
-from typing import Dict, Union, Any
-
-# from wire_damage.tools import MapMetric, ReduceMetric, AggregateMetric
 
 
-class MetricTable(FunctionalBase):
+class MetricTable(FunctionalBase, arbitrary_types_allowed=True):
     name: str
     metrics: Dict[str, Any]
-    # metrics: Dict[str, Union[MapMetric, ReduceMetric, AggregateMetric]]
-
-    class Config:
-        arbitrary_types_allowed = True
 
     def __init__(self, name, metrics):
         super().__init__(
