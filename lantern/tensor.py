@@ -54,7 +54,7 @@ class Tensor:
                 ]
             ),
             serialization=core_schema.plain_serializer_function_ser_schema(
-                lambda instance: instance.tolist()
+                lambda instance: instance
             ),
         )
 

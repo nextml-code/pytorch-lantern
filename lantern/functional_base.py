@@ -32,3 +32,18 @@ class FunctionalBase(BaseModel):
     @classmethod
     def classmethod(cls, fn):
         return cls.setattr(fn.__name__, classmethod(fn))
+
+
+def test_replace_same_device():
+    import torch
+
+    from .tensor import Tensor
+
+    class A(FunctionalBase):
+        x: Tensor
+        y: int
+
+    a = A(x=torch.tensor([1, 2, 3]).to("meta"), y=2)
+    b = a.replace(y=2)
+
+    assert b.x.device == a.x.device
