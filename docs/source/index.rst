@@ -9,7 +9,7 @@ between frameworks and libraries that we utilize.
 The main packages and tools that we build around are:
 
 - `pytorch <https://pytorch.org>`_
-- `pytorch-datastream <https://github.com/Aiwizo/pytorch-datastream>`_
+- `pytorch-datastream <https://github.com/nextml-code/pytorch-datastream>`_
 - `guild <https://guild.ai>`_
 
 .. autoclass:: lantern.EarlyStopping

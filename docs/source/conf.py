@@ -20,12 +20,12 @@ sys.setrecursionlimit(1500)
 # -- Project information -----------------------------------------------------
 
 project = "pytorch-lantern"
-copyright = "2020, Aiwizo"
-author = "Aiwizo"
+copyright = "2020, NextML"
+author = "NextML"
 
 # The full version, including alpha/beta/rc tags
 # release = '0.1.0'
-from pkg_resources import get_distribution, DistributionNotFound
+from pkg_resources import DistributionNotFound, get_distribution
 
 try:
     release = get_distribution("pytorch-lantern").version

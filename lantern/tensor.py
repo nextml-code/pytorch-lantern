@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, List
+from typing import Any, List, Type, TypeVar
 
 import numpy as np
 import torch
@@ -9,22 +9,35 @@ from pydantic.json_schema import JsonSchemaValue
 from pydantic_core import core_schema
 from typing_extensions import Annotated
 
+T = TypeVar("T", bound="Tensor")
+
 
 def validate_from_list(values: List) -> torch.Tensor:
+    """Convert a list to a PyTorch tensor."""
     return torch.tensor(values)
 
 
 def validate_from_numpy(array: np.ndarray) -> torch.Tensor:
+    """Convert a NumPy array to a PyTorch tensor."""
     return torch.from_numpy(array)
 
 
 class Tensor:
+    """
+    A class for creating type hints and validators for PyTorch tensors.
+
+    This class can be used with Pydantic to define and validate tensor fields
+    in data models. It provides various methods to specify tensor properties
+    such as dimensions, shape, data type, and value ranges.
+    """
+
     @classmethod
     def __get_pydantic_core_schema__(
         cls,
         _source_type: Any,
         _handler: GetCoreSchemaHandler,
     ) -> core_schema.CoreSchema:
+        """Generate the Pydantic core schema for tensor validation."""
         from_list_schema = core_schema.chain_schema(
             [
                 core_schema.list_schema(),
@@ -62,17 +75,23 @@ class Tensor:
     def __get_pydantic_json_schema__(
         cls, _core_schema: core_schema.CoreSchema, handler: GetJsonSchemaHandler
     ) -> JsonSchemaValue:
+        """Generate the JSON schema for tensor validation."""
         return handler(core_schema.list_schema())
 
     @classmethod
-    def validate(cls, data, config=None, field=None):
+    def validate(cls, data: Any, config: Any = None, field: Any = None) -> torch.Tensor:
+        """Base validation method for tensor data."""
         return data
 
     @classmethod
-    def ndim(cls, ndim) -> Tensor:
+    def ndim(cls: Type[T], ndim: int) -> Type[T]:
+        """Specify the number of dimensions for the tensor."""
+
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data, config=None, field=None):
+            def validate(
+                cls, data: torch.Tensor, config: Any = None, field: Any = None
+            ) -> torch.Tensor:
                 data = super().validate(data)
                 if data.ndim != ndim:
                     raise ValueError(f"Expected {ndim} dims, got {data.ndim}")
@@ -81,10 +100,14 @@ class Tensor:
         return InheritTensor
 
     @classmethod
-    def dims(cls, dims) -> Tensor:
+    def dims(cls: Type[T], dims: str) -> Type[T]:
+        """Specify the dimension names for the tensor."""
+
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data, config=None, field=None):
+            def validate(
+                cls, data: torch.Tensor, config: Any = None, field: Any = None
+            ) -> torch.Tensor:
                 data = super().validate(data)
                 if data.ndim != len(dims):
                     raise ValueError(
@@ -95,10 +118,14 @@ class Tensor:
         return InheritTensor
 
     @classmethod
-    def shape(cls, *sizes) -> Tensor:
+    def shape(cls: Type[T], *sizes: int) -> Type[T]:
+        """Specify the shape of the tensor."""
+
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data, config=None, field=None):
+            def validate(
+                cls, data: torch.Tensor, config: Any = None, field: Any = None
+            ) -> torch.Tensor:
                 data = super().validate(data)
                 for data_size, size in zip(data.shape, sizes):
                     if size != -1 and data_size != size:
@@ -108,10 +135,14 @@ class Tensor:
         return InheritTensor
 
     @classmethod
-    def between(cls, ge, le) -> Tensor:
+    def between(cls: Type[T], ge: float, le: float) -> Type[T]:
+        """Specify a range for tensor values."""
+
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data, config=None, field=None):
+            def validate(
+                cls, data: torch.Tensor, config: Any = None, field: Any = None
+            ) -> torch.Tensor:
                 data = super().validate(data)
                 if data.min() < ge:
                     raise ValueError(
@@ -127,23 +158,32 @@ class Tensor:
         return InheritTensor
 
     @classmethod
-    def ge(cls, ge) -> Tensor:
+    def ge(cls: Type[T], ge: float) -> Type[T]:
+        """Specify a minimum value for tensor elements."""
+
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data, config=None, field=None):
+            def validate(
+                cls, data: torch.Tensor, config: Any = None, field: Any = None
+            ) -> torch.Tensor:
                 data = super().validate(data)
                 if data.min() < ge:
                     raise ValueError(
                         f"Expected greater than or equal to {ge}, got {data.min()}"
                     )
+                return data
 
         return InheritTensor
 
     @classmethod
-    def le(cls, le) -> Tensor:
+    def le(cls: Type[T], le: float) -> Type[T]:
+        """Specify a maximum value for tensor elements."""
+
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data, config=None, field=None):
+            def validate(
+                cls, data: torch.Tensor, config: Any = None, field: Any = None
+            ) -> torch.Tensor:
                 data = super().validate(data)
 
                 if data.max() > le:
@@ -155,22 +195,31 @@ class Tensor:
         return InheritTensor
 
     @classmethod
-    def gt(cls, gt) -> Tensor:
+    def gt(cls: Type[T], gt: float) -> Type[T]:
+        """Specify a strict minimum value for tensor elements."""
+
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data, config=None, field=None):
+            def validate(
+                cls, data: torch.Tensor, config: Any = None, field: Any = None
+            ) -> torch.Tensor:
                 data = super().validate(data)
 
                 if data.min() <= gt:
                     raise ValueError(f"Expected greater than {gt}, got {data.min()}")
+                return data
 
         return InheritTensor
 
     @classmethod
-    def lt(cls, lt) -> Tensor:
+    def lt(cls: Type[T], lt: float) -> Type[T]:
+        """Specify a strict maximum value for tensor elements."""
+
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data, config=None, field=None):
+            def validate(
+                cls, data: torch.Tensor, config: Any = None, field: Any = None
+            ) -> torch.Tensor:
                 data = super().validate(data)
 
                 if data.max() >= lt:
@@ -180,10 +229,14 @@ class Tensor:
         return InheritTensor
 
     @classmethod
-    def ne(cls, ne) -> Tensor:
+    def ne(cls: Type[T], ne: float) -> Type[T]:
+        """Specify a value that tensor elements should not equal."""
+
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data, config=None, field=None):
+            def validate(
+                cls, data: torch.Tensor, config: Any = None, field: Any = None
+            ) -> torch.Tensor:
                 data = super().validate(data)
 
                 if (data == ne).any():
@@ -193,27 +246,37 @@ class Tensor:
         return InheritTensor
 
     @classmethod
-    def device(cls, device) -> Tensor:
+    def device(cls: Type[T], device: torch.device) -> Type[T]:
+        """Specify the device for the tensor."""
+
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data, config=None, field=None):
+            def validate(
+                cls, data: torch.Tensor, config: Any = None, field: Any = None
+            ) -> torch.Tensor:
                 return super().validate(data).to(device)
 
         return InheritTensor
 
     @classmethod
-    def cpu(cls) -> Tensor:
+    def cpu(cls: Type[T]) -> Type[T]:
+        """Specify that the tensor should be on CPU."""
         return cls.device(torch.device("cpu"))
 
     @classmethod
-    def cuda(cls) -> Tensor:
+    def cuda(cls: Type[T]) -> Type[T]:
+        """Specify that the tensor should be on CUDA."""
         return cls.device(torch.device("cuda"))
 
     @classmethod
-    def dtype(cls, dtype) -> Tensor:
+    def dtype(cls: Type[T], dtype: torch.dtype) -> Type[T]:
+        """Specify the data type for the tensor."""
+
         class InheritTensor(cls):
             @classmethod
-            def validate(cls, data, config=None, field=None):
+            def validate(
+                cls, data: torch.Tensor, config: Any = None, field: Any = None
+            ) -> torch.Tensor:
                 data = super().validate(data)
                 if data.dtype == dtype:
                     return data
@@ -230,63 +293,78 @@ class Tensor:
         return InheritTensor
 
     @classmethod
-    def float(cls) -> Tensor:
+    def float(cls: Type[T]) -> Type[T]:
+        """Specify float32 data type for the tensor."""
         return cls.dtype(torch.float32)
 
     @classmethod
-    def float32(cls) -> Tensor:
+    def float32(cls: Type[T]) -> Type[T]:
+        """Specify float32 data type for the tensor."""
         return cls.dtype(torch.float32)
 
     @classmethod
-    def half(cls) -> Tensor:
+    def half(cls: Type[T]) -> Type[T]:
+        """Specify float16 data type for the tensor."""
         return cls.dtype(torch.float16)
 
     @classmethod
-    def float16(cls):
+    def float16(cls: Type[T]) -> Type[T]:
+        """Specify float16 data type for the tensor."""
         return cls.dtype(torch.float16)
 
     @classmethod
-    def double(cls) -> Tensor:
+    def double(cls: Type[T]) -> Type[T]:
+        """Specify float64 data type for the tensor."""
         return cls.dtype(torch.float64)
 
     @classmethod
-    def float64(cls) -> Tensor:
+    def float64(cls: Type[T]) -> Type[T]:
+        """Specify float64 data type for the tensor."""
         return cls.dtype(torch.float64)
 
     @classmethod
-    def int(cls) -> Tensor:
+    def int(cls: Type[T]) -> Type[T]:
+        """Specify int32 data type for the tensor."""
         return cls.dtype(torch.int32)
 
     @classmethod
-    def int32(cls) -> Tensor:
+    def int32(cls: Type[T]) -> Type[T]:
+        """Specify int32 data type for the tensor."""
         return cls.dtype(torch.int32)
 
     @classmethod
-    def long(cls) -> Tensor:
+    def long(cls: Type[T]) -> Type[T]:
+        """Specify int64 data type for the tensor."""
         return cls.dtype(torch.int64)
 
     @classmethod
-    def int64(cls) -> Tensor:
+    def int64(cls: Type[T]) -> Type[T]:
+        """Specify int64 data type for the tensor."""
         return cls.dtype(torch.int64)
 
     @classmethod
-    def short(cls) -> Tensor:
+    def short(cls: Type[T]) -> Type[T]:
+        """Specify int16 data type for the tensor."""
         return cls.dtype(torch.int16)
 
     @classmethod
-    def int16(cls) -> Tensor:
+    def int16(cls: Type[T]) -> Type[T]:
+        """Specify int16 data type for the tensor."""
         return cls.dtype(torch.int16)
 
     @classmethod
-    def byte(cls) -> Tensor:
+    def byte(cls: Type[T]) -> Type[T]:
+        """Specify uint8 data type for the tensor."""
         return cls.dtype(torch.uint8)
 
     @classmethod
-    def uint8(cls) -> Tensor:
+    def uint8(cls: Type[T]) -> Type[T]:
+        """Specify uint8 data type for the tensor."""
         return cls.dtype(torch.uint8)
 
     @classmethod
-    def bool(cls) -> Tensor:
+    def bool(cls: Type[T]) -> Type[T]:
+        """Specify boolean data type for the tensor."""
         return cls.dtype(torch.bool)
 
 

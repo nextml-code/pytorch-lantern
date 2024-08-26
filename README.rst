@@ -25,12 +25,32 @@ between frameworks and libraries that we utilize.
 The main packages and tools that we build around are:
 
 - `pytorch <https://pytorch.org>`_
-- `pytorch-datastream <https://github.com/Aiwizo/pytorch-datastream>`_
+- `pytorch-datastream <https://github.com/nextml-code/pytorch-datastream>`_
 - `guild <https://guild.ai>`_
 
+Usage
+=====
+
+Example of tensor type hinting.
+
+.. code-block:: python
+
+    from pydantic import BaseModel
+    from typing import Annotated
+    import torch
+    from lantern import Tensor
+
+    class Example(BaseModel):
+        image: Annotated[torch.Tensor, Tensor.dims("NCHW").float()]
+        label: Annotated[torch.Tensor, Tensor.dims("N").long()]
+
+    example = Example(
+        image=torch.rand(32, 3, 224, 224),  # 32 images, 3 channels, 224x224 pixels
+        label=torch.randint(0, 10, (32,))   # 32 labels
+    )
 
 See the `documentation <https://pytorch-lantern.readthedocs.io/en/latest/>`_
-for more information.
+for more information and usage examples.
 
 Create new project with template
 ================================
@@ -47,7 +67,7 @@ Setup project:
 
 .. code-block::
 
-    cookiecutter https://github.com/aiwizo/pytorch-lantern-template.git
+    cookiecutter https://github.com/nextml-code/pytorch-lantern-template.git
     cd <new-project>
     poetry install
 
