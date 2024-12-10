@@ -3,7 +3,8 @@ from typing import Any, Callable, List, Optional, Union
 
 import numpy as np
 
-from lantern import FunctionalBase, star
+from lantern.functional_base import FunctionalBase
+from lantern.star import star
 
 
 class MapMetric(FunctionalBase):
