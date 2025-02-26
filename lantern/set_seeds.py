@@ -11,6 +11,7 @@ def set_seeds(seed):
     try:
         import imgaug
 
-        imgaug.seed(seed + 4)
+        if hasattr(imgaug, "seed"):
+            imgaug.seed(seed + 4)
     except ImportError:
         pass
