@@ -1,18 +1,16 @@
-[tool.poetry]
+[project]
 name = "pytorch-lantern"
 version = "0.0.0"
 description = "Pytorch project template and related tools"
-authors = ["NextML AB"]
-license = "Apache-2.0"
+authors = [{ name = "NextML AB" }]
+requires-python = ">=3.8,<4"
 readme = "README.rst"
-repository = "https://github.com/nextml-code/pytorch-lantern"
-documentation = "https://pytorch-lantern.readthedocs.io"
+license = "Apache-2.0"
 keywords = [
     "pytorch",
     "machine",
-    "learning"
+    "learning",
 ]
-# some classifiers are added automatically, see https://python-poetry.org/docs/pyproject/#classifiers
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Environment :: Other Environment",
@@ -24,40 +22,48 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Software Development",
     "Topic :: Software Development :: Libraries",
-    "Topic :: Software Development :: Libraries :: Python Modules"
+    "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-packages = [
-    { include = "lantern" },
+dependencies = [
+    "numpy>=1.19.4,<2",
+    "torch>=1.6.0",
+    "tqdm",
+    "pydantic==2.*",
+    "pandas>=1.0.0,<2",
+    "pydantic-core>=2.14.5,<3",
 ]
 
-[tool.poetry.dependencies]
-python = "^3.8"
-numpy = "^1.19.4"
-torch = ">=1.6.0"
-tqdm = "*"
-tensorboard = { version = "^2.2.0", optional = true }
-pydantic = "2.*"
-pandas = "^1.0.0"
-pydantic-core = "^2.14.5"
+[project.optional-dependencies]
+training = ["tensorboard>=2.2.0,<3"]
 
-[tool.poetry.extras]
-training = ["tensorboard"]
+[project.urls]
+Repository = "https://github.com/nextml-code/pytorch-lantern"
+Documentation = "https://pytorch-lantern.readthedocs.io"
 
-[tool.poetry.group.test.dependencies]
-pytest = "^6.1.2"
-rstcheck = "^3.3.1"
-Sphinx = "^3.3.0"
-black = "^23.11.0"
+[dependency-groups]
+test = [
+    "pytest>=6.1.2,<7",
+    "rstcheck>=3.3.1,<4",
+    "Sphinx>=3.3.0,<4",
+    "black>=23.11.0,<24",
+]
+dev = [
+    "cookiecutter>=1.7.2,<2",
+    "flake8>=3.8.4,<4",
+    "torchvision==0.*",
+    "pytorch-datastream>=0.4.9,<0.5",
+]
 
-[tool.poetry.group.dev.dependencies]
-cookiecutter = "^1.7.2"
-flake8 = "^3.8.4"
-torchvision = "0.*"
-pytorch-datastream = "^0.4.9"
+[tool.uv]
+default-groups = "all"
+
+[tool.uv.build-backend]
+module-root = ""
+module-name = "lantern"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.11.25,<0.12"]
+build-backend = "uv_build"
 
 [tool.black]
 line-length = 88
