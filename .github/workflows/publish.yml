@@ -8,31 +8,26 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - name: Set PATH
-        run: echo "${HOME}/.local/bin" >> $GITHUB_PATH
-
       - uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
+      - name: Install uv
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
           python-version: "3.8"
+          enable-cache: true
+
       - name: Install dependencies
-        run: |
-          curl -sSL https://install.python-poetry.org | python - --version 1.2.2
-          poetry install -E training
+        run: uv sync --locked --extra training
 
       - name: Run tests
-        run: |
-          poetry run pytest
+        run: uv run --no-sync pytest
 
       - name: Build wheels
         run: |
-          poetry version $(git tag --points-at HEAD)
-          poetry build
+          uv version "$(git tag --points-at HEAD)"
+          uv build
 
       - name: Upload
         env:
-          USERNAME: __token__
-          PASSWORD: ${{ secrets.PYPI_TOKEN }}
-        run: |
-          poetry publish --username=$USERNAME --password=$PASSWORD
+          UV_PUBLISH_USERNAME: __token__
+          UV_PUBLISH_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: uv publish
