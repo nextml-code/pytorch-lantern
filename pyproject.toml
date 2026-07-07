@@ -29,7 +29,7 @@ dependencies = [
     "torch>=1.6.0",
     "tqdm",
     "pydantic==2.*",
-    "pandas>=1.0.0,<2",
+    "pandas>=1.0.0,<3",
     "pydantic-core>=2.14.5,<3",
 ]
 
