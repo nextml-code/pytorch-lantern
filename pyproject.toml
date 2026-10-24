@@ -25,7 +25,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    "numpy>=1.19.4,<2",
+    "numpy>=1.19.4,<3",
     "torch>=1.6.0",
     "tqdm",
     "pydantic==2.*",
